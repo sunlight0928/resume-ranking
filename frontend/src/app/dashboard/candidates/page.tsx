@@ -22,8 +22,8 @@ const FilesManagementDetail = () => {
     <>
       {/* Set the title and meta description of the page */}
       <HeadMain
-        title="Candidates - Management | Dashboard - Jobfit"
-        description="Dashboard - Jobfit"
+        title="Candidates - Management | Dashboard - RecruitGenie"
+        description="Dashboard - RecruitGenie"
       />
 
       {/* Display the breadcrumb */}

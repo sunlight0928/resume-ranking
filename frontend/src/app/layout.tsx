@@ -12,8 +12,8 @@ const roboto_mono = Roboto_Mono({
 });
 
 export const metadata = {
-  title: "CODEX - Jobfit",
-  description: "CODEX - Jobfit",
+  title: "RecruitGenie - Resume Matching",
+  description: "RecruitGenie - Resume Matching",
 };
 
 export default async function RootLayout({
