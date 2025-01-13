@@ -611,7 +611,7 @@ const TableFAQ = (props: Props) => {
                   </Dialog.Title>
                   <div className="mt-4">
                     <p className="text-sm text-gray-500">
-                      Bạn chắc chắn muốn xóa Job này không?
+                      Are you sure you want to delete this job?
                     </p>
                   </div>
 
