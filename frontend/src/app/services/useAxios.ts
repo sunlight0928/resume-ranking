@@ -9,10 +9,10 @@ const useAxios = axios.create({
 useAxios.interceptors.request.use(
   async (config) => {
     // const session = await getSession();
-    const session = await getSession({ req: config.headers.referer });
-    if (session?.access_token) {
-      config.headers.Authorization = `Bearer ${session.access_token}`;
-    }
+    // const session = await getSession({ req: config.headers.referer });
+    // if (session?.access_token) {
+    //   config.headers.Authorization = `Bearer ${session.access_token}`;
+    // }
     return config;
   },
   (error) => {

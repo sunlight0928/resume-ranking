@@ -34,30 +34,30 @@ const TableCandidates = (props2: Props) => {
     useListCandidateData(currentPage + 1, pageSize);
 
   // Create a function to periodically refetch data
-  const startAutoRefresh = () => {
-    const interval = 1000; // 3 seconds in milliseconds
+  // const startAutoRefresh = () => {
+  //   const interval = 1000; // 3 seconds in milliseconds
 
-    const refreshData = () => {
-      refetch();
-    };
+  //   const refreshData = () => {
+  //     refetch();
+  //   };
 
-    const refreshInterval = setInterval(refreshData, interval);
+  //   const refreshInterval = setInterval(refreshData, interval);
 
-    // Return a function to clear the interval when needed
-    return () => {
-      clearInterval(refreshInterval);
-    };
-  };
+  //   // Return a function to clear the interval when needed
+  //   return () => {
+  //     clearInterval(refreshInterval);
+  //   };
+  // };
 
-  // Call startAutoRefresh when the component mounts
-  useEffect(() => {
-    const stopAutoRefresh = startAutoRefresh();
+  // // Call startAutoRefresh when the component mounts
+  // useEffect(() => {
+  //   const stopAutoRefresh = startAutoRefresh();
 
-    // Return a cleanup function to clear the interval when the component unmounts
-    return () => {
-      stopAutoRefresh();
-    };
-  }, []); // The empty dependency array ensures this effect runs only once when the component mounts
+  //   // Return a cleanup function to clear the interval when the component unmounts
+  //   return () => {
+  //     stopAutoRefresh();
+  //   };
+  // }, []); // The empty dependency array ensures this effect runs only once when the component mounts
 
   const showModalDelete = async (fileId: string, fileName: string) => {
     await setFileId(fileId);
