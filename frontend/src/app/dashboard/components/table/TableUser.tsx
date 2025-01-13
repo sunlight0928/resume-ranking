@@ -175,7 +175,7 @@ const TableUser = (props: Props) => {
                   </Dialog.Title>
                   <div className="mt-4">
                     <p className="text-sm text-gray-500">
-                      Bạn chắc chắn thay đổi trạng thái của [{" "}
+                      You definitely change the status of [{" "}
                       <strong>{selectedEmail}</strong> ] ?
                     </p>
                   </div>
