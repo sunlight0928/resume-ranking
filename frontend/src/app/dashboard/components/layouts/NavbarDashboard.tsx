@@ -48,7 +48,7 @@ const NavbarDashboard = () => {
               </svg>
             </button>
             {/* Logo */}
-            <Link href="/" className="flex ml-2 md:mr-24">
+            <Link href="/" className="flex ml-2 md:mr-3">
               <Image
                 src="/media/svg/logo2.svg"
                 alt="Logo"
@@ -60,6 +60,10 @@ const NavbarDashboard = () => {
                 {/* Dashboard */}
               </span>
             </Link>
+
+            <div className="font-bold text-xl p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-white dark:border-gray-700 sm:p-2 dark:bg-gray-800">
+              <h1>RecruitGenie</h1>
+            </div>
             {/* Form Search */}
             {/* <div className='hidden lg:block lg:pl-3.5'>
               <form className="flex items-center ">
