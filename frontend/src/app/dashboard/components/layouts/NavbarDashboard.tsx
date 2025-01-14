@@ -61,7 +61,7 @@ const NavbarDashboard = () => {
               </span>
             </Link>
 
-            <div className="font-bold text-xl p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-white dark:border-gray-700 sm:p-2 dark:bg-gray-800">
+            <div className="font-bold text-xl p-1 bg-white shadow-sm dark:text-white dark:bg-gray-800">
               <h1>RecruitGenie</h1>
             </div>
             {/* Form Search */}
