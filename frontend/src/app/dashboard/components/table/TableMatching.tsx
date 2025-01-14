@@ -184,12 +184,12 @@ const TableFAQ = (props: Props) => {
       header: "Comment",
       cell: ({ row }: { row: Row<any> }) => {
         const [showFullContent, setShowFullContent] = React.useState(false);
-        if (!row.original.comment) {
+        if (!row.original.summary_comment) {
           return null;
         }
         const content = showFullContent
-          ? row.original.comment
-          : row.original.comment.slice(0, 200);
+          ? row.original.summary_comment
+          : row.original.summary_comment.slice(0, 200);
         return (
           <>
             <div
@@ -197,7 +197,7 @@ const TableFAQ = (props: Props) => {
               id="answer"
               dangerouslySetInnerHTML={{ __html: content }}
             />
-            {row.original.comment.length > 200 && (
+            {row.original.summary_comment.length > 200 && (
               <button
                 className="text-blue-500 hover:underline focus:outline-none"
                 onClick={() => setShowFullContent(!showFullContent)}
@@ -759,6 +759,17 @@ const TableFAQ = (props: Props) => {
 
               <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
+                  Candidate Email
+                </div>
+                <p className="text-sm leading-6 text-gray-60">
+                  {candidateDetailQuery.data?.email
+                    ? candidateDetailQuery.data?.email
+                    : "None"}
+                </p>
+              </div>
+
+              {/* <div className="p-2">
+                <div className="text-base font-semibold leading-7 text-gray-900">
                   Candidate CV Name
                 </div>
                 <p className="text-sm leading-6 text-gray-60">
@@ -766,7 +777,7 @@ const TableFAQ = (props: Props) => {
                     ? candidateDetailQuery.data?.cv_name
                     : "None"}
                 </p>
-              </div>
+              </div> */}
 
               <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
