@@ -58,6 +58,9 @@ const TableFAQ = (props: Props) => {
   const [inputs, setInputs] = React.useState<InputItem[] | []>([]);
   const [CandidateId, setCandidateId] = React.useState<string>("id");
   const [selectedJobId, setSelectedJobId] = React.useState<string>("id");
+  const [detailCandidateName, SetDetailCandidateName] = React.useState<string>("None");
+  const [detailCandidatePhone, SetDetailCandidatePhone] = React.useState<string>("None");
+  const [detailCandidateEmail, SetDetailCandidateEmail] = React.useState<string>("None");
   const candidateDetailQuery = useMatchingDetailData(
     CandidateId,
     selectedJobId
@@ -139,11 +142,15 @@ const TableFAQ = (props: Props) => {
     setIsOpenDrawer(false);
   };
 
-  const handleDetail = async (candidateId: string, jobId: string) => {
+  const handleDetail = async (candidateId: string, jobId: string, candidateName: string, phoneNumber: string, email: string) => {
     await setCandidateId(candidateId);
     await setSelectedJobId(jobId);
+    await SetDetailCandidateName(candidateName);
+    await SetDetailCandidatePhone(phoneNumber);
+    await SetDetailCandidateEmail(email);
 
     await candidateDetailQuery.refetch();
+
     if (candidateDetailQuery.isLoading) {
       setIsFetching(true);
     }
@@ -277,7 +284,7 @@ const TableFAQ = (props: Props) => {
             <button
               className="p-2 text-xs font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               value={row.original.id}
-              onClick={() => handleDetail(row.original.id, selectedJobId)}
+              onClick={() => handleDetail(row.original.id, selectedJobId, row.original.candidate_name, row.original.phone_number, row.original.candidate_email)}
             >
               Detail
             </button>
@@ -740,8 +747,8 @@ const TableFAQ = (props: Props) => {
                   Candidate Name
                 </div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {candidateDetailQuery.data?.candidate_name
-                    ? candidateDetailQuery.data?.candidate_name
+                  {detailCandidateName
+                    ? detailCandidateName
                     : "None"}
                 </p>
               </div>
@@ -751,8 +758,8 @@ const TableFAQ = (props: Props) => {
                   Candidate Phone Number
                 </div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {candidateDetailQuery.data?.phone_number
-                    ? candidateDetailQuery.data?.phone_number
+                  {detailCandidatePhone
+                    ? detailCandidatePhone
                     : "None"}
                 </p>
               </div>
@@ -762,8 +769,8 @@ const TableFAQ = (props: Props) => {
                   Candidate Email
                 </div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {candidateDetailQuery.data?.email
-                    ? candidateDetailQuery.data?.email
+                  {detailCandidateEmail
+                    ? detailCandidateEmail
                     : "None"}
                 </p>
               </div>
@@ -813,7 +820,7 @@ const TableFAQ = (props: Props) => {
                 </p>
               </div>
 
-              <div className="p-2">
+              {/* <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
                   Recommended Jobs
                 </div>
@@ -822,7 +829,7 @@ const TableFAQ = (props: Props) => {
                     ? candidateDetailQuery.data?.job_recommended
                     : "None"}
                 </p>
-              </div>
+              </div> */}
 
               <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
@@ -838,7 +845,7 @@ const TableFAQ = (props: Props) => {
                   Score:{" "}
                   {candidateDetailQuery.data?.degree.score
                     ? candidateDetailQuery.data?.degree.score
-                    : "None"}
+                    : "0"}
                 </p>
               </div>
 
@@ -856,7 +863,7 @@ const TableFAQ = (props: Props) => {
                   Score:{" "}
                   {candidateDetailQuery.data?.experience.score
                     ? candidateDetailQuery.data?.experience.score
-                    : "None"}
+                    : "0"}
                 </p>
               </div>
 
@@ -874,7 +881,7 @@ const TableFAQ = (props: Props) => {
                   Score:{" "}
                   {candidateDetailQuery.data?.responsibility.score
                     ? candidateDetailQuery.data?.responsibility.score
-                    : "None"}
+                    : "0"}
                 </p>
               </div>
 
@@ -892,7 +899,7 @@ const TableFAQ = (props: Props) => {
                   Score:{" "}
                   {candidateDetailQuery.data?.technical_skill.score
                     ? candidateDetailQuery.data?.technical_skill.score
-                    : "None"}
+                    : "0"}
                 </p>
               </div>
 
@@ -910,7 +917,7 @@ const TableFAQ = (props: Props) => {
                   Score:{" "}
                   {candidateDetailQuery.data?.soft_skill.score
                     ? candidateDetailQuery.data?.soft_skill.score
-                    : "None"}
+                    : "0"}
                 </p>
               </div>
 
@@ -928,7 +935,7 @@ const TableFAQ = (props: Props) => {
                   Score:{" "}
                   {candidateDetailQuery.data?.certificate.score
                     ? candidateDetailQuery.data?.certificate.score
-                    : "None"}
+                    : "0"}
                 </p>
               </div>
             </>
