@@ -12,13 +12,13 @@ def configure_logging(app: Flask):
     # Set the logging level
     logger.setLevel(logging.DEBUG)
 
-    # Set the timezone to Vietnam
-    vietnam_timezone = pytz.timezone("Asia/Ho_Chi_Minh")
+    # Set the timezone to Berlin
+    berlin_timezone = pytz.timezone("Europe/Berlin")
 
-    # Configure logging with the Vietnam timezone
+    # Configure logging with the Berlin timezone
     logging.Formatter.converter = (
         lambda *args: pytz.utc.localize(datetime.utcnow())
-        .astimezone(vietnam_timezone)
+        .astimezone(berlin_timezone)
         .timetuple()
     )
 

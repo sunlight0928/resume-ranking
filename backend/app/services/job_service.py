@@ -23,7 +23,7 @@ def get_all_job():
 def post_job(job_data):
     job_data["job_name"] = job_data["job_name"].strip()
     job_data["job_description"] = job_data["job_description"].strip()
-    created_at = datetime.now(timezone("Asia/Ho_Chi_Minh")).strftime(
+    created_at = datetime.now(timezone("Europe/Berlin")).strftime(
         "%Y-%m-%d %H:%M:%S"
     )
 
@@ -106,7 +106,7 @@ def get_job(job_id):
 def update_job(job_data, job_id):
     job_data["job_name"] = job_data["job_name"].strip()
     job_data["job_description"] = job_data["job_description"].strip()
-    created_at = datetime.now(timezone("Asia/Ho_Chi_Minh")).strftime(
+    created_at = datetime.now(timezone("Europe/Berlin")).strftime(
         "%Y-%m-%d %H:%M:%S"
     )
 

@@ -80,7 +80,7 @@ def allowed_file(filename):
 
 
 def process_upload_file(file):
-    created_at = datetime.now(timezone("Asia/Ho_Chi_Minh")).strftime(
+    created_at = datetime.now(timezone("Europe/Berlin")).strftime(
         "%Y-%m-%d %H:%M:%S"
     )
 

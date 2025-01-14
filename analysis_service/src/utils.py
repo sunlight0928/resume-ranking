@@ -13,7 +13,7 @@ def initial_logger():
     logger.setLevel(logging.DEBUG)
 
     # Set the timezone to Vietnam
-    vietnam_timezone = pytz.timezone("Asia/Ho_Chi_Minh")
+    vietnam_timezone = pytz.timezone("Europe/Berlin")
 
     # Configure logging with the Vietnam timezone
     logging.Formatter.converter = (
