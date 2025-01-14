@@ -14,9 +14,6 @@ class MatchingSchema(Schema):
     _id = fields.Str()
     candidate_id = fields.Str()
     job_id = fields.Str()
-    candidate_name = fields.Str()
-    phone_number = fields.Str()
-    email = fields.Str()
     degree = fields.Nested(AnalyseSchema())
     experience = fields.Nested(AnalyseSchema())
     responsibility = fields.Nested(AnalyseSchema())
@@ -36,7 +33,7 @@ class MatchingFilterPageSchema(Schema):
 class PlainMatchingSchema(Schema):
     id = fields.Str(dump_only=True)
     candidate_name = fields.Str(required=True)
-    candidate_email = fields.Str(required=True)
+    phone_number = fields.Str(required=True)
     candidate_email = fields.Str(required=True)
     cv_name = fields.Str(required=True)
     score = fields.Str(required=True)

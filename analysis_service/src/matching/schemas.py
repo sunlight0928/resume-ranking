@@ -7,9 +7,6 @@ class MatchingSchema(BaseModel):
 
 
 class ResponseSchema(BaseModel):
-    candidate_name: str
-    phone_number: str
-    email: str
     degree: list
     experience: list
     technical_skill: list

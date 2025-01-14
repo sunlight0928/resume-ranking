@@ -17,18 +17,6 @@ fn_matching_analysis = [
         "parameters": {
             "type": "object",
             "properties": {
-                "candidate_name": {
-                    "type": "string",
-                    "description": "Name of the candidate.",
-                },
-                "phone_number": {
-                    "type": "string",
-                    "description": "Phone number of the candidate.",
-                },
-                "email": {
-                    "type": "string",
-                    "description": "Email of candidate. e.g. jackey@gmail.com, hinata@outlook.com",
-                },
                 "degree": {
                     "type": "object",
                     "properties": {
@@ -127,7 +115,7 @@ fn_matching_analysis = [
                 },
                 "summary_comment": {
                     "type": "string",
-                    "description": "Give comment about a detailed, professional written evaluation of at least 200 words outlining the candidate's strengths and key qualifications, areas for improvement or gaps that align with the job requirements, and your final recommendation for the position.",
+                    "description": "Please leave a detailed and professional evaluation of at least 200 words outlining the candidate's strengths, key qualifications, and areas for improvement or gaps that align with the job requirements.",
                 },
             },
             "required": [
