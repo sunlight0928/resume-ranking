@@ -59,7 +59,7 @@ const TableFAQ = (props: Props) => {
   const [CandidateId, setCandidateId] = React.useState<string>("id");
   const [selectedJobId, setSelectedJobId] = React.useState<string>("id");
   const [detailCandidateName, SetDetailCandidateName] = React.useState<string>("None");
-  const [detailCandidatePhone, SetDetailCandidatePhone] = React.useState<string>("None");
+  const [detailCvname, SetDetailCvname] = React.useState<string>("None");
   const [detailCandidateEmail, SetDetailCandidateEmail] = React.useState<string>("None");
   const candidateDetailQuery = useMatchingDetailData(
     CandidateId,
@@ -142,11 +142,11 @@ const TableFAQ = (props: Props) => {
     setIsOpenDrawer(false);
   };
 
-  const handleDetail = async (candidateId: string, jobId: string, candidateName: string, phoneNumber: string, email: string) => {
+  const handleDetail = async (candidateId: string, jobId: string, candidateName: string, Cvname: string, email: string) => {
     await setCandidateId(candidateId);
     await setSelectedJobId(jobId);
     await SetDetailCandidateName(candidateName);
-    await SetDetailCandidatePhone(phoneNumber);
+    await SetDetailCvname(Cvname);
     await SetDetailCandidateEmail(email);
 
     await candidateDetailQuery.refetch();
@@ -284,7 +284,7 @@ const TableFAQ = (props: Props) => {
             <button
               className="p-2 text-xs font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               value={row.original.id}
-              onClick={() => handleDetail(row.original.id, selectedJobId, row.original.candidate_name, row.original.phone_number, row.original.candidate_email)}
+              onClick={() => handleDetail(row.original.id, selectedJobId, row.original.candidate_name, row.original.cv_name, row.original.candidate_email)}
             >
               Detail
             </button>
@@ -753,7 +753,7 @@ const TableFAQ = (props: Props) => {
                 </p>
               </div>
 
-              <div className="p-2">
+              {/* <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
                   Candidate Phone Number
                 </div>
@@ -762,7 +762,7 @@ const TableFAQ = (props: Props) => {
                     ? detailCandidatePhone
                     : "None"}
                 </p>
-              </div>
+              </div> */}
 
               <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
@@ -775,16 +775,16 @@ const TableFAQ = (props: Props) => {
                 </p>
               </div>
 
-              {/* <div className="p-2">
+              <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
                   Candidate CV Name
                 </div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {candidateDetailQuery.data?.cv_name
-                    ? candidateDetailQuery.data?.cv_name
+                  {detailCvname
+                    ? detailCvname
                     : "None"}
                 </p>
-              </div> */}
+              </div>
 
               <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
