@@ -12,13 +12,13 @@ def initial_logger():
     # Set the logging level
     logger.setLevel(logging.DEBUG)
 
-    # Set the timezone to Vietnam
-    vietnam_timezone = pytz.timezone("Europe/Berlin")
+    # Set the timezone to Berlin
+    Berlin_timezone = pytz.timezone("Europe/Berlin")
 
-    # Configure logging with the Vietnam timezone
+    # Configure logging with the Berlin timezone
     logging.Formatter.converter = (
         lambda *args: pytz.utc.localize(datetime.utcnow())
-        .astimezone(vietnam_timezone)
+        .astimezone(Berlin_timezone)
         .timetuple()
     )
 
