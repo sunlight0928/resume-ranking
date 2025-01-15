@@ -33,7 +33,7 @@ class MatchingFilterPageSchema(Schema):
 class PlainMatchingSchema(Schema):
     id = fields.Str(dump_only=True)
     candidate_name = fields.Str(required=True)
-    phone_number = fields.Str(required=True)
+    candidate_phone = fields.Str(required=True)
     candidate_email = fields.Str(required=True)
     cv_name = fields.Str(required=True)
     score = fields.Str(required=True)

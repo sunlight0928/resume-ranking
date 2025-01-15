@@ -178,6 +178,7 @@ const TableFAQ = (props: Props) => {
     columnHelper.display({
       header: "Candidate Name",
       cell: ({ row }: { row: Row<any> }) => {
+        console.log(row.original)
         return <>{row.original.candidate_name}</>;
       },
     }),
@@ -284,7 +285,7 @@ const TableFAQ = (props: Props) => {
             <button
               className="p-2 text-xs font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               value={row.original.id}
-              onClick={() => handleDetail(row.original.id, selectedJobId, row.original.candidate_name, row.original.cv_name, row.original.candidate_email)}
+              onClick={() => handleDetail(row.original.id, selectedJobId, row.original.candidate_name, row.original.candidate_phone, row.original.candidate_email)}
             >
               Detail
             </button>
