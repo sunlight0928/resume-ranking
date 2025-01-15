@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createColumnHelper, Row } from "@tanstack/react-table";
 import { TablePagination, Drawer } from "@mui/material";
 import { useForm } from "react-hook-form";
+import { FaRegFilePdf } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import UseTableTanStackSSR from "@/app/hooks/react-table/useTableTanStackSSR";
 import { Menu, Dialog, Transition } from "@headlessui/react";
@@ -59,7 +60,7 @@ const TableFAQ = (props: Props) => {
   const [CandidateId, setCandidateId] = React.useState<string>("id");
   const [selectedJobId, setSelectedJobId] = React.useState<string>("id");
   const [detailCandidateName, SetDetailCandidateName] = React.useState<string>("None");
-  const [detailCvname, SetDetailCvname] = React.useState<string>("None");
+  const [detailCandidatePhone, SetDetailCandidatePhone] = React.useState<string>("None");
   const [detailCandidateEmail, SetDetailCandidateEmail] = React.useState<string>("None");
   const candidateDetailQuery = useMatchingDetailData(
     CandidateId,
@@ -142,11 +143,11 @@ const TableFAQ = (props: Props) => {
     setIsOpenDrawer(false);
   };
 
-  const handleDetail = async (candidateId: string, jobId: string, candidateName: string, Cvname: string, email: string) => {
+  const handleDetail = async (candidateId: string, jobId: string, candidateName: string, candidatePhone: string, email: string) => {
     await setCandidateId(candidateId);
     await setSelectedJobId(jobId);
     await SetDetailCandidateName(candidateName);
-    await SetDetailCvname(Cvname);
+    await SetDetailCandidatePhone(candidatePhone);
     await SetDetailCandidateEmail(email);
 
     await candidateDetailQuery.refetch();
@@ -178,7 +179,6 @@ const TableFAQ = (props: Props) => {
     columnHelper.display({
       header: "Candidate Name",
       cell: ({ row }: { row: Row<any> }) => {
-        console.log(row.original)
         return <>{row.original.candidate_name}</>;
       },
     }),
@@ -289,13 +289,8 @@ const TableFAQ = (props: Props) => {
             >
               Detail
             </button>
-            {/*
-            <button className="p-2 mr-2 text-xs font-medium text-center text-white bg-blue-700 rounded-sm hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={() => handleModifyFAQ(row.original.id)}>
-              Update
-            </button> */}
-            {/* <button className="p-2 text-xs font-medium text-center text-white bg-red-700 rounded-sm hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" onClick={() => handleDeleteFAQ(row.original.id)}>
-              Delete
-            </button> */}
+            
+            {/* <FaRegFilePdf className="dark:text-white w-6 h-6 mr-2" /> */}
           </>
         );
       },
@@ -737,6 +732,7 @@ const TableFAQ = (props: Props) => {
           <div className="text-base font-bold">
             Detail Analyse Matching Candidate
           </div>
+          {/* <FaRegFilePdf className="dark:text-red w-6 h-6 mr-2" /> */}
         </div>
         <div className="w-[500px] text-sm">
           {fetching ? (
@@ -778,11 +774,11 @@ const TableFAQ = (props: Props) => {
 
               <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
-                  Candidate CV Name
+                  Candidate Phone Number
                 </div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {detailCvname
-                    ? detailCvname
+                  {detailCandidatePhone
+                    ? detailCandidatePhone
                     : "None"}
                 </p>
               </div>
