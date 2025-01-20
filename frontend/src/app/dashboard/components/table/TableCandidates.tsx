@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { createColumnHelper, Row } from "@tanstack/react-table";
 import UseTableTanStackSSR from "@/app/hooks/react-table/useTableTanStackSSR";
 import {
@@ -10,6 +10,7 @@ import {
 import { TablePagination, Drawer } from "@mui/material";
 import { Dialog, Transition } from "@headlessui/react";
 import { ToastContainer, toast } from "react-toastify";
+import { FaSearch } from "react-icons/fa";
 
 type Props = {
   data: CandidateResponseModel;
@@ -25,39 +26,15 @@ const TableCandidates = (props2: Props) => {
   const [fileName, setFileName] = React.useState<string>("");
   const [isOpenModalDelete, setIsOpenModalDelete] =
     React.useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>(""); // State for search term
+  const [isSearchMode, setIsSearchMode] = useState<boolean>(false); // State to track if search mode is active
   const fileDetailQuery = useListFileDetailData(fileId);
   const { mutate: deleteFile } = useDeleteFileData(fileId);
 
-  // Fetch file data using the useListFileData hook
-  // const { data, isLoading, isError, refetch } = useListCandidateData((currentPage + 1), pageSize);
-  const { data, isLoading, isError, isPreviousData, refetch } =
-    useListCandidateData(currentPage + 1, pageSize);
-
-  // Create a function to periodically refetch data
-  // const startAutoRefresh = () => {
-  //   const interval = 1000; // 3 seconds in milliseconds
-
-  //   const refreshData = () => {
-  //     refetch();
-  //   };
-
-  //   const refreshInterval = setInterval(refreshData, interval);
-
-  //   // Return a function to clear the interval when needed
-  //   return () => {
-  //     clearInterval(refreshInterval);
-  //   };
-  // };
-
-  // // Call startAutoRefresh when the component mounts
-  // useEffect(() => {
-  //   const stopAutoRefresh = startAutoRefresh();
-
-  //   // Return a cleanup function to clear the interval when the component unmounts
-  //   return () => {
-  //     stopAutoRefresh();
-  //   };
-  // }, []); // The empty dependency array ensures this effect runs only once when the component mounts
+  const { data, isLoading, isError, refetch } = useListCandidateData(
+    currentPage + 1,
+    pageSize
+  );
 
   const showModalDelete = async (fileId: string, fileName: string) => {
     await setFileId(fileId);
@@ -168,6 +145,29 @@ const TableCandidates = (props2: Props) => {
     }),
   ];
 
+  // Filtered data based on search
+  const filteredData = useMemo(() => {
+    if (!data?.results) return [];
+    if (!isSearchMode || searchTerm.trim() === "") {
+      // If not in search mode, return all data
+      return data.results;
+    }
+    return data.results.filter((candidate) =>
+      candidate.candidate_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [data, searchTerm, isSearchMode]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (searchTerm.trim() === "") {
+      // If the search term is empty, reset to initial state
+      setIsSearchMode(false);
+    } else {
+      setIsSearchMode(true);
+    }
+  };
+
   const handleChangeRowsPerPage = (event: any) => {
     setPageSize(event.target.value);
   };
@@ -205,13 +205,36 @@ const TableCandidates = (props2: Props) => {
         theme="dark"
       />
 
-      <UseTableTanStackSSR columns={columns} data={data!.results} />
+      {/* Title and Search Box */}
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-lg font-semibold dark:text-white">
+          List candidates uploaded
+        </h1>
+        <form className="flex items-center" onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="Search"
+            className="px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-600 h-8 w-[300px] bg-gray-50 text-gray-900 border border-gray-300 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:border-gray-600"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} // Update search term state
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          >
+            <FaSearch />
+          </button>
+        </form>
+      </div>
+
+      <UseTableTanStackSSR columns={columns} data={filteredData} />
+
       {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[10, 20, 30]}
         component="div"
         className="dark:text-white"
-        count={data!.total_file}
+        count={filteredData.length}
         page={currentPage}
         onPageChange={handlePageOnchange}
         rowsPerPage={pageSize}
@@ -445,7 +468,6 @@ const TableCandidates = (props2: Props) => {
           </div>
         </Dialog>
       </Transition>
-      {/* Modal edit role */}
     </>
   );
 };

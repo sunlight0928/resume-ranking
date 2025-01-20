@@ -35,7 +35,6 @@ const FilesManagementDetail = () => {
         <UploadZoneComponent refetch={refetch} />
 
         <div className="mt-4 p-4 text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-white dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-          <div className="font-bold text-lg">List candidates uploaded</div>
           <div id="list-candidate" className="mt-4">
             <div className="flex flex-col mt-6">
               <div className="overflow-x-auto">

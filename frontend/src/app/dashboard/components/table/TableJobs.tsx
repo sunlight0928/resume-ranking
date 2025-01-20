@@ -1,8 +1,9 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useState, useMemo } from "react";
 
 import { createColumnHelper, Row } from "@tanstack/react-table";
 import { TablePagination, Drawer, Skeleton } from "@mui/material";
+import { FaSearch } from "react-icons/fa";
 import { Controller, useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import UseTableTanStackSSR from "@/app/hooks/react-table/useTableTanStackSSR";
@@ -41,7 +42,7 @@ const TableJobs = (props: Props) => {
   const [jobId, setJobId] = React.useState<string>("id");
   const jobDetailQuery = useJobDetailData(jobId);
   const [isOpenDrawer, setIsOpenDrawer] = React.useState<boolean>(false);
-
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = React.useState<number>(0);
   const [pageSize, setPageSize] = React.useState<number>(10);
   const [isOpenModalDelete, setIsOpenModalDelete] =
@@ -66,6 +67,20 @@ const TableJobs = (props: Props) => {
     currentPage + 1,
     pageSize
   );
+
+  const filteredData = useMemo(() => {
+    if (!data?.results) return [];
+    return data.results.filter((job) =>
+      job.job_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [data, searchTerm]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // The filtering is already handled by `filteredData`
+    console.log("Searching:", searchTerm);
+  };
+  
   const {
     data: detailFAQData,
     isLoading: isDetailFAQLoading,
@@ -447,21 +462,45 @@ const TableJobs = (props: Props) => {
         pauseOnHover
         theme="dark"
       />
-      <button
-        type="button"
-        className="mb-4 px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        onClick={() => handleAddFAQ()}
-      >
-        Create New Job
-      </button>
-      <UseTableTanStackSSR columns={columns} data={data.results} />
+
+      <div className="flex items-center justify-between mb-4">
+        {/* "Create New Job" Button */}
+        <button
+          type="button"
+          className="px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          onClick={() => handleAddFAQ()}
+        >
+          Create New Job
+        </button>
+        
+        {/* Search Box */}
+        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <input
+            type="text"
+            placeholder="Search"
+            className="px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-600 h-8 w-[300px] bg-gray-50 text-gray-900 border border-gray-300 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:border-gray-600"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} // Update search term state
+          />
+          <button
+            type="button"
+            className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          >
+            <FaSearch />
+          </button>
+        </div>
+      </div>
+      </div>
+      
+      <UseTableTanStackSSR columns={columns} data={filteredData} />
 
       {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[10, 20, 30]}
         component="div"
         className="dark:text-white"
-        count={data.total_job}
+        count={filteredData.length}
         page={currentPage}
         onPageChange={handlePageOnchange}
         rowsPerPage={pageSize}
