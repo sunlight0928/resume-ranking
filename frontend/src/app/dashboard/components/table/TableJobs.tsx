@@ -485,7 +485,7 @@ const TableJobs = (props: Props) => {
           />
           <button
             type="button"
-            className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-blue-600"
           >
             <FaSearch />
           </button>
