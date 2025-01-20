@@ -189,12 +189,12 @@ const SidebarDashboard = (props: Props) => {
               </div>
             </div>
             {/* Sidebar bottom menu */}
-            {/* <div className="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white lg:flex dark:bg-gray-800">
+            <div className="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white lg:flex dark:bg-gray-800">
               <a
-                href="#"
+                href="https://resume-chatbot.karzus.com/"
                 className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white"
               >
-                <svg
+              {/*   <svg
                   className="w-6 h-6"
                   fill="currentColor"
                   viewBox="0 0 20 20"
@@ -202,8 +202,8 @@ const SidebarDashboard = (props: Props) => {
                 >
                   <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"></path>
                 </svg>
-              </a>
-              <a
+              </a> */}
+              {/* <a
                 href="#"
                 data-tooltip-target="tooltip-settings"
                 className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -220,51 +220,55 @@ const SidebarDashboard = (props: Props) => {
                     clipRule="evenodd"
                   ></path>
                 </svg>
-              </a>
-              <button
-                type="button"
-                data-dropdown-toggle="language-dropdown"
-                className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                <svg
-                  className="h-5 w-5 rounded-full mt-0.5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  xmlnsXlink="http://www.w3.org/1999/xlink"
-                  viewBox="0 0 3900 3900"
+              </a> */}
+                <button
+                  type="button"
+                  data-dropdown-toggle="language-dropdown"
+                  className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
-                  <path fill="#b22234" d="M0 0h7410v3900H0z" />
-                  <path
-                    d="M0 450h7410m0 600H0m0 600h7410m0 600H0m0 600h7410m0 600H0"
-                    stroke="#fff"
-                    strokeWidth="300"
-                  />
-                  <path fill="#3c3b6e" d="M0 0h2964v2100H0z" />
-                  <g fill="#fff">
-                    <g id="d">
-                      <g id="c">
-                        <g id="e">
-                          <g id="b">
-                            <path
-                              id="a"
-                              d="M247 90l70.534 217.082-184.66-134.164h228.253L176.466 307.082z"
-                            />
-                            <use xlinkHref="#a" y="420" />
-                            <use xlinkHref="#a" y="840" />
-                            <use xlinkHref="#a" y="1260" />
+                  <svg
+                    className="h-5 w-5 rounded-full mt-0.5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    viewBox="0 0 3900 3900"
+                  >
+                    <path fill="#b22234" d="M0 0h7410v3900H0z" />
+                    <path
+                      d="M0 450h7410m0 600H0m0 600h7410m0 600H0m0 600h7410m0 600H0"
+                      stroke="#fff"
+                      strokeWidth="300"
+                    />
+                    <path fill="#3c3b6e" d="M0 0h2964v2100H0z" />
+                    <g fill="#fff">
+                      <g id="d">
+                        <g id="c">
+                          <g id="e">
+                            <g id="b">
+                              <path
+                                id="a"
+                                d="M247 90l70.534 217.082-184.66-134.164h228.253L176.466 307.082z"
+                              />
+                              <use xlinkHref="#a" y="420" />
+                              <use xlinkHref="#a" y="840" />
+                              <use xlinkHref="#a" y="1260" />
+                            </g>
+                            <use xlinkHref="#a" y="1680" />
                           </g>
-                          <use xlinkHref="#a" y="1680" />
+                          <use xlinkHref="#b" x="247" y="210" />
                         </g>
-                        <use xlinkHref="#b" x="247" y="210" />
+                        <use xlinkHref="#c" x="494" />
                       </g>
-                      <use xlinkHref="#c" x="494" />
+                      <use xlinkHref="#d" x="988" />
+                      <use xlinkHref="#c" x="1976" />
+                      <use xlinkHref="#e" x="2470" />
                     </g>
-                    <use xlinkHref="#d" x="988" />
-                    <use xlinkHref="#c" x="1976" />
-                    <use xlinkHref="#e" x="2470" />
-                  </g>
-                </svg>
-              </button>
-            </div> */}
+                  </svg>
+                </button>
+                <div className="font-bold text-x3 p-1 text-black shadow-sm dark:text-white dark:hover:bg-gray-700 dark:hover:text-white">
+                  <h3>AI assistant</h3>
+                </div>
+              </a>
+            </div>
           </div>
         </aside>
       </div>
