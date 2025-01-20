@@ -226,7 +226,7 @@ const SidebarDashboard = (props: Props) => {
                   data-dropdown-toggle="language-dropdown"
                   className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
-                  <svg
+                  {/* <svg
                     className="h-5 w-5 rounded-full mt-0.5"
                     xmlns="http://www.w3.org/2000/svg"
                     xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -262,10 +262,11 @@ const SidebarDashboard = (props: Props) => {
                       <use xlinkHref="#c" x="1976" />
                       <use xlinkHref="#e" x="2470" />
                     </g>
-                  </svg>
+                  </svg> */}
+                  <img src="/media/png/chatbot.png" alt="chatbot" width="40" />
                 </button>
-                <div className="font-bold text-x3 p-1 text-black shadow-sm dark:text-white dark:hover:bg-gray-700 dark:hover:text-white">
-                  <h3>AI assistant</h3>
+                <div className="font-bold text-l p-1 text-black shadow-sm dark:text-white dark:hover:bg-gray-700 dark:hover:text-white">
+                  <h6 className="text-l mt-2">AI assistant</h6>
                 </div>
               </a>
             </div>
