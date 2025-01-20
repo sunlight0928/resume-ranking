@@ -191,7 +191,7 @@ const SidebarDashboard = (props: Props) => {
             {/* Sidebar bottom menu */}
             <div className="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white lg:flex dark:bg-gray-800">
               <a
-                href="https://resume-chatbot.karzus.com/"
+                href="https://resume-chat-two.vercel.app/"
                 className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white"
               >
               {/*   <svg
