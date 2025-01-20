@@ -224,6 +224,7 @@ const SidebarDashboard = (props: Props) => {
                 <button
                   type="button"
                   data-dropdown-toggle="language-dropdown"
+                  style={{ marginLeft: '-8px' }}
                   className="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
                   {/* <svg
