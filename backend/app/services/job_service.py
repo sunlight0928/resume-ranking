@@ -38,7 +38,7 @@ def post_job(job_data):
     response_content = response.json()
 
     response_content["job_name"] = job_data["job_name"]
-    # response_content["job_description"] = job_data["job_description"]
+    response_content["job_description"] = job_data["job_description"]
     response_content["created_at"] = created_at
 
     # Add to database
