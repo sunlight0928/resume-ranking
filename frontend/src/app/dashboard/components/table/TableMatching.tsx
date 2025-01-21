@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-
+import { IconArrowRight } from "@tabler/icons-react";
 import { createColumnHelper, Row } from "@tanstack/react-table";
 import { TablePagination, Drawer } from "@mui/material";
 import { useForm } from "react-hook-form";
@@ -729,6 +729,9 @@ const TableFAQ = (props: Props) => {
       {/* Drawer */}
       <Drawer anchor="right" open={isOpenDrawer} onClose={handleDrawerClose}>
         <div className="flex items-center p-2 justify-center bg-blue-700 text-white">
+          <button onClick={() => handleDrawerClose()}>
+            <IconArrowRight className="absolute left-2 top-1 h-8 w-8 hover:cursor-pointer rounded-full p-1 bg-blue-500 text-white hover:opacity-80" />
+          </button>
           <div className="text-base font-bold">
             Detail Analyse Matching Candidate
           </div>

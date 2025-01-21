@@ -81,7 +81,7 @@ def allowed_file(filename):
 
 def process_upload_file(file):
     created_at = datetime.now(timezone("Europe/Berlin")).strftime(
-        "%Y-%m-%d %H:%M:%S"
+        "%m-%d-%Y %H:%M:%S"
     )
 
     # Check type pdf or docx

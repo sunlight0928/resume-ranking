@@ -51,6 +51,11 @@ fn_job_analysis = [
                     "items": {"type": "string"},
                     "description": "Soft skills required for the job, inferred from the provided information. e.g. Language, communication, teamwork, adaptability.",
                 },
+                "job_description": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Do not change the order of sentences or words in the information provided, and insert things like spacing and line breaks wherever necessary.",
+                },
             },
             "required": [
                 "degree",
@@ -59,6 +64,7 @@ fn_job_analysis = [
                 "responsibility",
                 "certificate",
                 "soft_skill",
+                "job_description",
             ],
         },
     }

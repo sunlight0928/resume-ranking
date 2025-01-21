@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     APP_ENV: str = "develop"
 
     # Logging setting
-    DATE_FMT: str = "%Y-%m-%d %H:%M:%S"
+    DATE_FMT: str = "%m-%d-%Y %H:%M:%S"
     LOG_DIR: str = f"{basedir}/logs/api.log"
 
 

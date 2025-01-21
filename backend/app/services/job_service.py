@@ -24,7 +24,7 @@ def post_job(job_data):
     job_data["job_name"] = job_data["job_name"].strip()
     job_data["job_description"] = job_data["job_description"].strip()
     created_at = datetime.now(timezone("Europe/Berlin")).strftime(
-        "%Y-%m-%d %H:%M:%S"
+        "%m-%d-%Y %H:%M:%S"
     )
 
     analysis_endpoint_url = f"{config.ANALYSIS_SERVICE_URL}/job/analyse"
@@ -38,7 +38,7 @@ def post_job(job_data):
     response_content = response.json()
 
     response_content["job_name"] = job_data["job_name"]
-    response_content["job_description"] = job_data["job_description"]
+    # response_content["job_description"] = job_data["job_description"]
     response_content["created_at"] = created_at
 
     # Add to database
@@ -100,14 +100,13 @@ def filter_page(page_size=10, page=1):
 def get_job(job_id):
     collection = mongo.db.job
     result = collection.find_one_or_404({"_id": ObjectId(job_id)})
-    return result
 
 
 def update_job(job_data, job_id):
     job_data["job_name"] = job_data["job_name"].strip()
     job_data["job_description"] = job_data["job_description"].strip()
     created_at = datetime.now(timezone("Europe/Berlin")).strftime(
-        "%Y-%m-%d %H:%M:%S"
+        "%m-%d-%Y %H:%M:%S"
     )
 
     collection = mongo.db.job

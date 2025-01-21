@@ -13,3 +13,4 @@ class ResponseSchema(BaseModel):
     responsibility: list
     certificate: list
     soft_skill: list
+    job_description: list

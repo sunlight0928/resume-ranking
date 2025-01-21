@@ -37,7 +37,7 @@ class DefaultConfig:
     APP_ENV = ""
 
     # Logging
-    DATE_FMT = "%Y-%m-%d %H:%M:%S"
+    DATE_FMT = "%m-%d-%Y %H:%M:%S"
     LOG_FILE_API = f"{basedir}/logs/api.log"
 
 
