@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { MdWork, MdPersonSearch, MdPeopleAlt } from "react-icons/md";
+import { MdWork, MdPersonSearch, MdPeopleAlt, MdAssistantNavigation } from "react-icons/md";
 
 interface Menu {
   title: string;
@@ -29,5 +29,10 @@ export const SidebarDataDashboard: Menu[] = [
     title: "Matching",
     link: "/dashboard/matching",
     icon: <MdPersonSearch style={{ width: "24px", height: "24px" }} />,
+  },
+  {
+    title: "AI assistant",
+    link: "/dashboard/chatbot",
+    icon: <MdAssistantNavigation style={{ width: "24px", height: "24px" }} />,
   },
 ];

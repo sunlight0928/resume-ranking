@@ -264,11 +264,7 @@ const SidebarDashboard = (props: Props) => {
                       <use xlinkHref="#e" x="2470" />
                     </g>
                   </svg> */}
-                  <img src="/media/png/chatbot.png" alt="chatbot" width="40" />
                 </button>
-                <div className="font-bold text-l p-1 text-black shadow-sm dark:text-white dark:hover:bg-gray-700 dark:hover:text-white">
-                  <h6 className="text-l mt-2">AI assistant</h6>
-                </div>
               </a>
             </div>
           </div>
