@@ -100,6 +100,7 @@ def filter_page(page_size=10, page=1):
 def get_job(job_id):
     collection = mongo.db.job
     result = collection.find_one_or_404({"_id": ObjectId(job_id)})
+    return result
 
 
 def update_job(job_data, job_id):
