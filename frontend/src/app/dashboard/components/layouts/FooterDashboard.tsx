@@ -135,7 +135,7 @@ const FooterDashboard = (props: Props) => {
       <p className="my-10 text-sm text-center text-gray-500">
         &copy; {new Date().getFullYear()}{" "}
         <a href="#" className="hover:underline" target="_blank">
-        RecruitGenie
+        ResumeGenie
         </a>
         . All rights reserved.
       </p>

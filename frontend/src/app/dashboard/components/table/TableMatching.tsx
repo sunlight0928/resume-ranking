@@ -282,14 +282,19 @@ const TableFAQ = (props: Props) => {
       cell: ({ row }: { row: Row<any> }) => {
         return (
           <>
+            {/* <button
+              className="p-2 mr-2 rounded-lg text-xs font-medium text-center text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+              onClick={() => handleModifyFAQ(row.original._id)}
+            >
+              Update
+            </button> */}
             <button
               className="p-2 text-xs font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               value={row.original.id}
               onClick={() => handleDetail(row.original.id, selectedJobId, row.original.candidate_name, row.original.candidate_phone, row.original.candidate_email)}
             >
               Detail
-            </button>
-            
+            </button>            
             {/* <FaRegFilePdf className="dark:text-white w-6 h-6 mr-2" /> */}
           </>
         );

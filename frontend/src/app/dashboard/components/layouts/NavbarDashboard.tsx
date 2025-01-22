@@ -62,7 +62,7 @@ const NavbarDashboard = () => {
             </Link>
 
             <div className="font-bold text-xl p-1 bg-white shadow-sm dark:text-white dark:bg-gray-800">
-              <h1>RecruitGenie</h1>
+              <h1>ResumeGenie</h1>
             </div>
             {/* Form Search */}
             {/* <div className='hidden lg:block lg:pl-3.5'>

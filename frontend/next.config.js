@@ -8,6 +8,7 @@ const nextConfig = {
   //   appDir: true,
   // },
   reactStrictMode: true,
+  swcMinify: true,
   output: "export",
 };
 

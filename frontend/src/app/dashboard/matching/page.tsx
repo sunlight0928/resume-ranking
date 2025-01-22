@@ -10,8 +10,8 @@ const Matching = (props: Props) => {
     <>
       {/* Set the title and meta description of the page */}
       <HeadMain
-        title="Matching - Management | Dashboard - RecruitGenie"
-        description="Dashboard - RecruitGenie"
+        title="Matching - Management | Dashboard - ResumeGenie"
+        description="Dashboard - ResumeGenie"
       />
 
       {/* Display the breadcrumb */}

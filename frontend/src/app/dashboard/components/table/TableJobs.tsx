@@ -1,13 +1,24 @@
 "use client";
 import React, { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
+import { useForm, Controller } from "react-hook-form";
+import { Dialog, Transition } from "@headlessui/react";
+import { jsPDF } from "jspdf";
+import { PDFViewer, Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { FaDownload, FaPrint, FaSearch } from "react-icons/fa";
+import { TablePagination, Drawer, Skeleton } from "@mui/material";
 import { IconArrowRight } from "@tabler/icons-react";
 import { createColumnHelper, Row } from "@tanstack/react-table";
-import { TablePagination, Drawer, Skeleton } from "@mui/material";
-import { FaSearch } from "react-icons/fa";
-import { Controller, useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "react-quill/dist/quill.snow.css";
+
+// Dynamically import ReactQuill (client-side only)
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
+// Import custom hooks
 import UseTableTanStackSSR from "@/app/hooks/react-table/useTableTanStackSSR";
-import { Dialog, Transition } from "@headlessui/react";
+
 import {
   useJobDetailData,
   useFAQData,
@@ -16,9 +27,6 @@ import {
   useAddFAQData,
   useUpdateFAQData,
 } from "@/app/hooks/react-query/logging/faq/useFAQData";
-import "react-quill/dist/quill.snow.css"; // Import Quill
-
-import dynamic from "next/dynamic";
 
 type Props = {};
 
@@ -38,6 +46,64 @@ interface DataFormModel {
   job_description: string;
 }
 
+const pdfStyles = StyleSheet.create({
+  page: {
+    padding: 40,
+    fontSize: 12,
+    fontFamily: "Helvetica",
+  },
+  title: {
+    fontSize: 20,
+    textAlign: "center",
+    color: "#0000FF", // Blue color for the title
+    marginBottom: 30,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    color: "#0000FF", // Blue color for section titles
+    marginBottom: 10,
+    marginTop: 20,
+  },
+  bulletPoint: {
+    flexDirection: "row",
+    marginBottom: 6,
+  },
+  bulletText: {
+    fontSize: 12,
+    marginLeft: 5,
+    flex: 1,
+  },
+  bulletSymbol: {
+    fontSize: 12,
+    marginRight: 5,
+  },
+  createdDate: {
+    fontSize: 12,
+    marginTop: 20,
+    textAlign: "right",
+  },
+});
+
+// Component to render a section with bullets
+const PDFSection = ({ title, items }: { title: string; items: string[] }) => (
+  <View>
+    {/* Section Title */}
+    <Text style={pdfStyles.sectionTitle}>{title}</Text>
+
+    {/* List Items */}
+    {items.length > 0 ? (
+      items.map((item, index) => (
+        <View style={pdfStyles.bulletPoint} key={index}>
+          <Text style={pdfStyles.bulletSymbol}>•</Text>
+          <Text style={pdfStyles.bulletText}>{item}</Text>
+        </View>
+      ))
+    ) : (
+      <Text style={pdfStyles.bulletText}>None</Text>
+    )}
+  </View>
+);
+
 const TableJobs = (props: Props) => {
   const [jobId, setJobId] = React.useState<string>("id");
   const jobDetailQuery = useJobDetailData(jobId);
@@ -45,11 +111,10 @@ const TableJobs = (props: Props) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = React.useState<number>(0);
   const [pageSize, setPageSize] = React.useState<number>(10);
-  const [isOpenModalDelete, setIsOpenModalDelete] =
-    React.useState<boolean>(false);
+  const [isOpenModalDelete, setIsOpenModalDelete] = React.useState<boolean>(false);
+  const [isOutputModalOpen, setIsOutputModalOpen] = React.useState<boolean>(false);
   const [isOpenModalAdd, setIsOpenModalAdd] = React.useState<boolean>(false);
-  const [isOpenModalUpdate, setIsOpenModalUpdate] =
-    React.useState<boolean>(false);
+  const [isOpenModalUpdate, setIsOpenModalUpdate] = React.useState<boolean>(false);
   const [fetching, setIsFetching] = React.useState<boolean>(false);
   const [faqId, setFaqId] = React.useState<number>(-1);
   const [inputs, setInputs] = React.useState<InputItem[] | []>([]);
@@ -74,12 +139,6 @@ const TableJobs = (props: Props) => {
       job.job_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [data, searchTerm]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // The filtering is already handled by `filteredData`
-    console.log("Searching:", searchTerm);
-  };
   
   const {
     data: detailFAQData,
@@ -91,12 +150,6 @@ const TableJobs = (props: Props) => {
   const { mutate: deleteFAQ } = useDeleteFAQData(faqId);
   const { mutate: addFAQ } = useAddFAQData(dataForm);
   const { mutate: updateFAQ } = useUpdateFAQData(dataForm, faqId);
-
-  const [text, setText] = React.useState<string>("");
-
-  const handleChange = (value: any) => {
-    setText(value);
-  };
 
   const {
     register,
@@ -205,32 +258,6 @@ const TableJobs = (props: Props) => {
         );
       },
     }),
-    // columnHelper.display({
-    //   header: "Documents",
-    //   cell: ({ row }: { row: Row<any> }) => {
-    //     return (
-    //       <>
-    //         {row.original.documents.map((item: DocumentsModel) => (
-    //           <div key={item.id}><span className='font-semibold'>Document name</span>: {item.document} - <span className='font-semibold'>Page</span>: {item.page}</div>
-    //         ))}
-    //       </>
-    //     )
-    //   }
-    // }),
-    // columnHelper.display({
-    //   header: "Category",
-    //   cell: ({ row }: { row: Row<any> }) => {
-    //     return (
-    //       <>
-    //         {row.original.faq_category.name}
-    //       </>
-    //     )
-    //   }
-    // }),
-    // columnHelper.accessor("used", {
-    //   header: "Used",
-    //   cell: (props) => props.getValue(),
-    // }),
     columnHelper.accessor("created_at", {
       header: "Job Created Date",
       cell: (props) => props.getValue(),
@@ -241,22 +268,28 @@ const TableJobs = (props: Props) => {
         return (
           <>
             <button
+              className="p-2 mr-2 rounded-lg text-xs font-medium text-center text-white bg-blue-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              onClick={() => handleDetail(row.original._id)}
+            >
+              Detail
+            </button>
+            <button
               className="p-2 mr-2 rounded-lg text-xs font-medium text-center text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
               onClick={() => handleModifyFAQ(row.original._id)}
             >
               Update
             </button>
             <button
+              className="p-2 mr-2 rounded-lg text-xs font-medium text-center text-white bg-yellow-500 hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+              onClick={() => handleOutput(row.original._id)}
+            >
+              Output
+            </button>
+            <button
               className="p-2 mr-2 rounded-lg text-xs font-medium text-center text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
               onClick={() => handleDeleteFAQ(row.original._id)}
             >
               Delete
-            </button>
-            <button
-              className="p-2 mr-2 rounded-lg text-xs font-medium text-center text-white bg-blue-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              onClick={() => handleDetail(row.original._id)}
-            >
-              Detail
             </button>
           </>
         );
@@ -286,12 +319,6 @@ const TableJobs = (props: Props) => {
     await setFaqId(faqId);
     refetchDetailFAQData();
     try {
-      // const newInputs = (detailFAQData?.documents || []).map((document: any) => ({
-      //   documentname: document.document,
-      //   page: parseInt(document.page)
-      // }));
-
-      // setInputs([...inputs, ...newInputs]);
       setIsOpenModalUpdate(true);
     } catch (error) {
       console.error(error);
@@ -374,16 +401,6 @@ const TableJobs = (props: Props) => {
       job_description: data.job_description,
     };
 
-    // if (Array.isArray(inputs) && inputs.every((input) => input.documentname.trim().length > 0)) {
-    //   params.documents = inputs.map((input) => ({
-    //     page: input.page.toString(),
-    //     document: input.documentname,
-    //   }));
-    // } else {
-    //   alert('Document name is required.');
-    //   return;
-    // }
-
     await setDataForm(params);
     console.log(params);
     updateFAQ(
@@ -446,6 +463,250 @@ const TableJobs = (props: Props) => {
     }
     setIsFetching(false);
     setIsOpenDrawer(true);
+  };
+  // Function to handle the Output button click (opens the modal)
+  const handleOutput = async (jobId: string) => {
+    await setJobId(jobId);
+    await jobDetailQuery.refetch();
+    if (jobDetailQuery.isLoading) {
+      setIsFetching(true);
+    }
+    setIsFetching(false);
+    setIsOutputModalOpen(true);
+  };
+
+  // Function to close the modal
+  const closeOutputModal = () => {
+    setIsOutputModalOpen(false);
+  };
+
+  // Function to handle PDF printing
+  const handlePrintPDF = () => {
+    if (!jobDetailQuery.data) {
+      toast.error("Job details are not loaded yet.");
+      return;
+    }
+  
+    const doc = new jsPDF(); // Create a new jsPDF instance
+  
+    // Extract job details from `jobDetailQuery.data`
+    const jobName = jobDetailQuery.data.job_name || "Job";
+    const educations = jobDetailQuery.data.degree || [];
+    const experiences = jobDetailQuery.data.experience || [];
+    const responsibilities = jobDetailQuery.data.responsibility || [];
+    const technicalSkills = jobDetailQuery.data.technical_skill || [];
+    const softSkills = jobDetailQuery.data.soft_skill || [];
+    const certificates = jobDetailQuery.data.certificate || [];
+    const createdAt = `Job Created Date: ${new Date(jobDetailQuery.data.created_at).toLocaleDateString()}`;
+  
+    const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
+    const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
+  
+    // Set job name title in blue, centered, and with a 30px gap from the top
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
+    doc.text(jobName, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
+  
+    // Reset font styles for the rest of the content
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+  
+    // Helper function to add text with proper line wrapping and page handling
+    const addWrappedTextWithBullet = (
+      docInstance: any,
+      text: string | string[],
+      x: number,
+      y: number,
+      maxWidth: number,
+      lineHeight: number
+    ): number => {
+      const bullet = "• "; // Define the bullet point
+      const lines = Array.isArray(text) ? text : docInstance.splitTextToSize(text, maxWidth - 10); // Adjust maxWidth for the bullet
+      let currentY = y;
+      lines.forEach((line: string, index: number) => {
+        if (currentY + lineHeight > pageHeight) {
+          docInstance.addPage(); // Add a new page when text exceeds the page height
+          currentY = 20; // Reset `y` position on the new page
+        }
+        const prefix = index === 0 ? bullet : "   "; // Add bullet for the first line, and indent wrapped lines
+        docInstance.text(prefix + line, x, currentY); // Add the bullet before the text
+        currentY += lineHeight; // Increment `y` position for the next line
+      });
+      return currentY; // Return the updated `y` position
+    };
+  
+    // Add sections with data
+    const addSection = (title: string, items: string[], yOffset: number): number => {
+      if (items.length > 0) {
+        // Add section title in blue
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14); // Slightly larger font for titles
+        doc.setTextColor(0, 0, 255); // Set text color to blue
+        if (yOffset + 10 > pageHeight) {
+          doc.addPage();
+          yOffset = 20; // Reset yOffset on the new page
+        }
+        doc.text(title, 10, yOffset + 4); // Add section title
+        yOffset += 10; // Adjust yOffset for section content
+  
+        // Add the list items in normal font and black color
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0); // Reset text color to black
+        items.forEach((item) => {
+          yOffset = addWrappedTextWithBullet(doc, item, 15, yOffset, pageWidth - 30, 6); // Add wrapped text with bullet for each item
+        });
+  
+        yOffset += 4; // Add extra space after the section
+      }
+      return yOffset;
+    };
+  
+    let yOffset = 40; // Start content below the job name
+    yOffset = addSection("Educations", educations, yOffset);
+    yOffset = addSection("Experiences", experiences, yOffset);
+    yOffset = addSection("Responsibilities", responsibilities, yOffset);
+    yOffset = addSection("Technical Skills", technicalSkills, yOffset);
+    yOffset = addSection("Soft Skills", softSkills, yOffset);
+    yOffset = addSection("Certificates", certificates, yOffset);
+  
+    // Add "Job Created Date" with wrapping
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 255); // Blue color for the title
+    if (yOffset + 10 > pageHeight) {
+      doc.addPage();
+      yOffset = 20; // Reset yOffset on the new page
+    }
+    doc.text("Job Created Date", 10, yOffset + 4);
+    yOffset += 10; // Adjust yOffset for the content
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0); // Black color for the content
+    yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
+  
+    // Output the PDF as a blob for printing
+    const pdfBlob = doc.output("blob"); // Get the PDF as a blob object
+  
+    // Create a new window and print the PDF
+    const pdfURL = URL.createObjectURL(pdfBlob);
+    const printWindow = window.open(pdfURL, "_blank");
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.print(); // Trigger the print dialog
+      };
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    if (!jobDetailQuery.data) {
+      toast.error("Job details are not loaded yet.");
+      return;
+    }
+  
+    const doc = new jsPDF(); // Create a new jsPDF instance
+  
+    // Extract job details from `jobDetailQuery.data`
+    const jobName = jobDetailQuery.data.job_name || "Job";
+    const educations = jobDetailQuery.data.degree || [];
+    const experiences = jobDetailQuery.data.experience || [];
+    const responsibilities = jobDetailQuery.data.responsibility || [];
+    const technicalSkills = jobDetailQuery.data.technical_skill || [];
+    const softSkills = jobDetailQuery.data.soft_skill || [];
+    const certificates = jobDetailQuery.data.certificate || [];
+    const createdAt = `Job Created Date: ${new Date(jobDetailQuery.data.created_at).toLocaleDateString()}`;
+  
+    const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
+    const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
+  
+    // Set job name title in blue, centered, and with a 30px gap from the top
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
+    doc.text(jobName, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
+  
+    // Reset font styles for the rest of the content
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+  
+    // Helper function to add text with proper line wrapping and page handling
+    const addWrappedTextWithBullet = (
+      docInstance: any,
+      text: string | string[],
+      x: number,
+      y: number,
+      maxWidth: number,
+      lineHeight: number
+    ): number => {
+      const bullet = "• "; // Define the bullet point
+      const lines = Array.isArray(text) ? text : docInstance.splitTextToSize(text, maxWidth - 10); // Adjust maxWidth for the bullet
+      let currentY = y;
+      lines.forEach((line: string, index: number) => {
+        if (currentY + lineHeight > pageHeight) {
+          docInstance.addPage(); // Add a new page when text exceeds the page height
+          currentY = 20; // Reset `y` position on the new page
+        }
+        const prefix = index === 0 ? bullet : "   "; // Add bullet for the first line, and indent wrapped lines
+        docInstance.text(prefix + line, x, currentY); // Add the bullet before the text
+        currentY += lineHeight; // Increment `y` position for the next line
+      });
+      return currentY; // Return the updated `y` position
+    };
+  
+    // Add sections with data
+    const addSection = (title: string, items: string[], yOffset: number): number => {
+      if (items.length > 0) {
+        // Add section title in blue
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14); // Slightly larger font for titles
+        doc.setTextColor(0, 0, 255); // Set text color to blue
+        if (yOffset + 10 > pageHeight) {
+          doc.addPage();
+          yOffset = 20; // Reset yOffset on the new page
+        }
+        doc.text(title, 10, yOffset + 4); // Add section title
+        yOffset += 10; // Adjust yOffset for section content
+  
+        // Add the list items in normal font and black color
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0); // Reset text color to black
+        items.forEach((item) => {
+          yOffset = addWrappedTextWithBullet(doc, item, 15, yOffset, pageWidth - 30, 6); // Add wrapped text with bullet for each item
+        });
+  
+        yOffset += 4; // Add extra space after the section
+      }
+      return yOffset;
+    };
+  
+    let yOffset = 40; // Start content below the job name
+    yOffset = addSection("Educations", educations, yOffset);
+    yOffset = addSection("Experiences", experiences, yOffset);
+    yOffset = addSection("Responsibilities", responsibilities, yOffset);
+    yOffset = addSection("Technical Skills", technicalSkills, yOffset);
+    yOffset = addSection("Soft Skills", softSkills, yOffset);
+    yOffset = addSection("Certificates", certificates, yOffset);
+  
+    // Add "Job Created Date" with wrapping
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 255); // Blue color for the title
+    if (yOffset + 10 > pageHeight) {
+      doc.addPage();
+      yOffset = 20; // Reset yOffset on the new page
+    }
+    doc.text("Job Created Date", 10, yOffset + 4);
+    yOffset += 10; // Adjust yOffset for the content
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0); // Black color for the content
+    yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
+  
+    // Dynamically set the file name using the `jobName`
+    const fileName = `${jobName}.pdf`;
+    doc.save(fileName);
   };
 
   return (
@@ -560,6 +821,120 @@ const TableJobs = (props: Props) => {
                       onClick={closeModal}
                     >
                       No
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+
+      {/* Output Modal */}
+      <Transition appear show={isOutputModalOpen} as={React.Fragment}>
+        <Dialog as="div" className="relative z-20" onClose={closeOutputModal}>
+          <Transition.Child
+            as={React.Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={React.Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900 mb-4"
+                  >
+                    PDF Output
+                  </Dialog.Title>
+                  <div className="w-full h-[500px] border">
+                    {/* PDF Preview */}
+                    <PDFViewer className="w-full h-full">
+                      <Document>
+                        <Page size="A4" style={pdfStyles.page}>
+                          {/* Job Name */}
+                          <Text style={pdfStyles.title}>
+                            {jobDetailQuery.data?.job_name || "Job"}
+                          </Text>
+
+                          {/* Sections */}
+                          <PDFSection
+                            title="Educations"
+                            items={jobDetailQuery.data?.degree || []}
+                          />
+                          <PDFSection
+                            title="Experiences"
+                            items={jobDetailQuery.data?.experience || []}
+                          />
+                          <PDFSection
+                            title="Responsibilities"
+                            items={jobDetailQuery.data?.responsibility || []}
+                          />
+                          <PDFSection
+                            title="Technical Skills"
+                            items={jobDetailQuery.data?.technical_skill || []}
+                          />
+                          <PDFSection
+                            title="Soft Skills"
+                            items={jobDetailQuery.data?.soft_skill || []}
+                          />
+                          <PDFSection
+                            title="Certificates"
+                            items={jobDetailQuery.data?.certificate || []}
+                          />
+
+                          {/* Job Created Date */}
+                          <Text style={pdfStyles.createdDate}>
+                            Job Created Date:{" "}
+                            {new Date(
+                              jobDetailQuery.data?.created_at
+                            ).toLocaleDateString()}
+                          </Text>
+                        </Page>
+                      </Document>
+                    </PDFViewer>
+                  </div>
+
+                  {/* Modal Footer Buttons */}
+                  <div className="flex justify-end gap-4 mt-6">
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      onClick={handlePrintPDF}
+                    >
+                      <FaPrint />
+                      Print
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                      onClick={handleDownloadPDF}
+                    >
+                      <FaDownload />
+                      Download
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex px-4 py-2 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      onClick={closeOutputModal}
+                    >
+                      Close
                     </button>
                   </div>
                 </Dialog.Panel>
@@ -750,10 +1125,6 @@ const TableJobs = (props: Props) => {
                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                           Job Description
                         </label>
-                        {/* <textarea
-                          className="h-60 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 resize-none"
-                          {...register("job_description")}
-                        /> */}
 
                         <Controller
                           name="job_description"
@@ -786,56 +1157,6 @@ const TableJobs = (props: Props) => {
                         />
                       </div>
                     </div>
-                    {/* <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
-                      <div className="sm:col-span-2">
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
-                        <input
-                          type="text"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          value="FAQ Category 1"
-                          disabled
-                        />
-                      </div>
-                    </div> */}
-                    {/* <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
-                      <div className="sm:col-span-2">
-                        <label className="inline-block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                          Documents
-                        </label>
-                        <button
-                          onClick={addInput}
-                          type="button"
-                          className="inline-block ml-2 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                        >
-                          +
-                        </button>
-                        {inputs.map((input, index) => (
-                          <div className="flex space-x-4 mt-2" key={index}>
-                            <div className="w-3/4">
-                              <input
-                                type="text"
-                                name="documentname"
-                                value={input.documentname}
-                                onChange={(event) => handleInputChange(index, event)}
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              />
-                              {!validateDocumentName(input.documentname) && (
-                                <p className="error-message text-sm text-red-600">* Document name is required.</p>
-                              )}
-                            </div>
-                            <div className="w-1/4">
-                              <input
-                                type="number"
-                                name="page"
-                                value={input.page}
-                                onChange={(event) => handleInputChange(index, event)}
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div> */}
                     <div className="mt-8 text-end">
                       {loading === false ? (
                         <>

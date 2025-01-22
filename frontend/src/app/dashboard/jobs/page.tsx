@@ -10,8 +10,8 @@ const FAQ = (props: Props) => {
     <>
       {/* Set the title and meta description of the page */}
       <HeadMain
-        title="Jobs - Management | Dashboard - RecruitGenie"
-        description="Dashboard - RecruitGenie"
+        title="Jobs - Management | Dashboard - ResumeGenie"
+        description="Dashboard - ResumeGenie"
       />
 
       {/* Display the breadcrumb */}

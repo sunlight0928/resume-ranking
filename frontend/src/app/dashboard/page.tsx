@@ -7,7 +7,7 @@ export default function Dashboard() {
   return (
     <>
       {/* Set the title and meta description of the page */}
-      <HeadMain title="Dashboard - RecruitGenie" description="Dashboard - RecruitGenie" />
+      <HeadMain title="Dashboard - ResumeGenie" description="Dashboard - ResumeGenie" />
 
       {/* Display the breadcrumb */}
       <BreadcrumbDashboard title="Dashboard" />
