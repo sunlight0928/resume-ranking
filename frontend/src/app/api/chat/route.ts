@@ -2,7 +2,7 @@ import { Message } from "@/app/types";
 import { OpenAIStream } from "@/app/utils";
 
 // export const config = { runtime : "edge" }; // Use this instead of `export const config`
-export const runtime = "edge"; // Use this instead of `export const config`
+// export const runtime = "edge"; // Use this instead of `export const config`
 
 export async function POST(request: Request) {
   try {
