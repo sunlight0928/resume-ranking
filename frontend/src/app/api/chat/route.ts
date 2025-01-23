@@ -6,7 +6,6 @@ import { OpenAIStream } from "@/app/utils";
 
 export const POST = async (req: Request): Promise<Response> => {
   try {
-    console.log("hello, chat api");
     const { messages } = (await req.json()) as {
       messages: Message[];
     };
@@ -34,3 +33,12 @@ export const POST = async (req: Request): Promise<Response> => {
 }
 
 // export default POST;
+
+// import { NextRequest, NextResponse } from 'next/server';
+
+// // export const dynamic = "force-dynamic";
+// export async function POST(request: NextRequest) {
+//   const res = await request.json();
+  
+//   return new NextResponse(res, { status: 200 });
+// }

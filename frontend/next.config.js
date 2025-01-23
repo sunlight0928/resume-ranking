@@ -8,8 +8,9 @@ const nextConfig = {
   //   appDir: true,
   // },
   reactStrictMode: true,
-  swcMinify: true,
-  output: "export",
+  // swcMinify: true,
+  // output: "export",
+  // output: "standalone",
 };
 
 module.exports = nextConfig;
