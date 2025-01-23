@@ -1,7 +1,11 @@
+import dynamic from "next/dynamic";
+
 import React from "react";
 import HeadMain from "@/app/components/HeadMain"; // Import the HeadMain component
 import BreadcrumbDashboard from "../components/layouts/BreadcrumbDashboard"; // Import the BreadcrumbDashboard component
-import TableJobs from "../components/table/TableJobs"; // Import the TableFAQ component
+// import TableJobs from "../components/table/TableJobs"; // Import the TableFAQ component
+
+const TableJobs = dynamic(() => import('../components/table/TableJobs'), { ssr: false });
 
 type Props = {};
 
