@@ -62,7 +62,7 @@ const NavbarDashboard = () => {
             </Link>
 
             <div className="font-bold text-3xl p-1 bg-white shadow-sm dark:text-white dark:bg-gray-800">
-              <h1 className="text-[1.8rem] font-extrabold drop-shadow-[2px_2px_2px_rgba(0,0,0,0.5)] tracking-wide">
+              <h1 className="text-[1.8rem] font-extrabold tracking-wide">
                   <span style={{ color: 'rgb(136, 199, 85)' }}>Resume</span>
                   <span style={{ color: 'rgb(20, 123, 192)' }}>Genie</span>
               </h1>
