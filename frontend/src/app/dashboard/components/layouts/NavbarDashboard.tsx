@@ -50,10 +50,10 @@ const NavbarDashboard = () => {
             {/* Logo */}
             <Link href="/" className="flex ml-2 md:mr-3">
               <Image
-                src="/logo_test.png"
+                src="/test.png"
                 alt="Logo"
-                width={180}
-                height={180}
+                width={50}
+                height={50}
                 priority
               />
               <span className="ml-2 self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
@@ -61,9 +61,12 @@ const NavbarDashboard = () => {
               </span>
             </Link>
 
-            {/* <div className="font-bold text-xl p-1 bg-white shadow-sm dark:text-white dark:bg-gray-800">
-              <h1>ResumeGenie</h1>
-            </div> */}
+            <div className="font-bold text-3xl p-1 bg-white shadow-sm dark:text-white dark:bg-gray-800">
+              <h1 className="text-[1.8rem] font-extrabold drop-shadow-[2px_2px_2px_rgba(0,0,0,0.5)] tracking-wide">
+                  <span style={{ color: 'rgb(136, 199, 85)' }}>Resume</span>
+                  <span style={{ color: 'rgb(20, 123, 192)' }}>Genie</span>
+              </h1>
+            </div>
             {/* Form Search */}
             {/* <div className='hidden lg:block lg:pl-3.5'>
               <form className="flex items-center ">
