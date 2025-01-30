@@ -137,7 +137,11 @@ def upload_file_cv():
         abort(400, message="Upload document to Database failed!")
 
     for file in uploaded_files:
-        process_upload_file(file=file)
+        try:
+            process_upload_file(file=file)
+        except Exception as e:
+            logger.error(f"Failed to process file {file.filename}: {str(e)}")
+            continue  # Continue processing other files
 
     logger.info(f"Time upload file: {time.time()-start_time:.2f}")
 

@@ -892,7 +892,7 @@ const TableFAQ = (props: Props) => {
 
               <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
-                  Technicall Skills
+                  Technical Skills
                 </div>
                 <p className="px-2 text-sm leading-6 text-gray-60">
                   Comment:{" "}
