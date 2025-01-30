@@ -37,7 +37,8 @@ export const getMatchingDetailAxios = async (
 
 export const uploadFileAxios = async (
   formData: FormData,
-  setProgress: (progress: number) => void
+  setProgress: (progress: number) => void,
+  refetch?: ()=>void
 ) => {
   try {
     const { data } = await useAxios.post("/upload-cv", formData, {
@@ -58,6 +59,7 @@ export const uploadFileAxios = async (
         }
       },
     });
+    refetch && refetch();
     return data;
   } catch (error: any) {
     if (error.response) {

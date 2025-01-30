@@ -24,13 +24,13 @@ export function useListCandidateData(
 }
 
 export function useUploadFileData(setProgress: (progress: number) => void) {
-  return useMutation(({ files }: { files: File[] }) => {
+  return useMutation(({ files, refetch }: { files: File[], refetch?:()=>void }) => {
     const formData = new FormData();
     files.forEach((file) => {
       formData.append("file_upload", file);
     });
 
-    return uploadFileAxios(formData, setProgress); // Pass formData and setProgress correctly
+    return uploadFileAxios(formData, setProgress, refetch); // Pass formData and setProgress correctly
   });
 }
 

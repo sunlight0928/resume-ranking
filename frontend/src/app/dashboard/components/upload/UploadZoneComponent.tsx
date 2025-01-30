@@ -2,11 +2,10 @@
 import React, { ChangeEvent, useState } from "react";
 import { FaRegFilePdf } from "react-icons/fa";
 import Image from "next/image";
-import { Button, Typography, CircularProgress, Box } from "@mui/material";
+import { Typography, CircularProgress, Box } from "@mui/material";
 import { useUploadFileData } from "@/app/hooks/react-query/management/file/useFilesUploadData";
 import { ToastContainer, toast } from "react-toastify";
 import { MdOutlineCloudUpload, MdClear } from "react-icons/md";
-import { useDebouncedCallback } from "use-debounce";
 
 type Props = {
   refetch: () => void;
@@ -17,7 +16,9 @@ const UploadZoneComponent = (props: Props) => {
   const [errorContent, setErrorContent] = useState<string | null>(null);
   const [isUpload, setIsUpload] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [processContent, setProcessContent] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [currentUploadingFileIndex, setCurrentUploadingFileIndex] = useState<number>(0);
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -28,9 +29,7 @@ const UploadZoneComponent = (props: Props) => {
     setIsDragging(false);
   };
   const { mutate: uploadFile } = useUploadFileData(setUploadProgress);
-  const debouncedRefetch = useDebouncedCallback(props.refetch, 1000); // Wait 1 second before refetching
 
-  // Submit upload
   const handleSubmitUpload = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
   
@@ -39,41 +38,62 @@ const UploadZoneComponent = (props: Props) => {
       return;
     }
   
+    const totalFiles = file.length;
+    let successFiles = 0;
+  
     setIsUpload(true);
     setUploadProgress(0);
   
-    await uploadFile(
-      { files: file }, // Pass files as part of the mutation arguments
-      {
-        onSuccess: async (response) => {
-          setFile([]);
-          props.refetch();
-        
-          // Display toast messages for each file
-          toast.success("Upload file success");
-        
-          setIsUpload(false);
-          setUploadProgress(0);
-        },
-        onError: (error: any) => {
-          if (error.response) {
-            console.log("Upload error:", error.response.status);
-            if (error.response.status === 400) {
-              setErrorContent("File is duplicate");
-              toast.warning("File is duplicate");
-            } else {
-              setErrorContent("Upload file failed");
-              toast.error("Upload file failed");
+    // Process each file upload one by one
+    for (let i = 0; i < totalFiles; i++) {
+      setCurrentUploadingFileIndex(i + 1); // Update the current uploading file index (1-based)
+  
+      try {
+        // Upload the file and track progress
+        await new Promise<void>((resolve, reject) => {
+          uploadFile(
+            { files: [file[i]], refetch: props.refetch },
+            {
+              onSuccess: (response) => {
+                successFiles++;
+                resolve();
+              },
+              onError: (error: any) => {
+                if (error.response) {
+                  console.log("Upload error:", error.response.status);
+                  if (error.response.status === 400) {
+                    setErrorContent("File is duplicate");
+                    toast.warning(`File "${file[i].name}" is duplicate.`);
+                  } else {
+                    setErrorContent("Upload file failed");
+                    toast.error(`Failed to upload "${file[i].name}".`);
+                  }
+                } else {
+                  console.error("Unknown error:", error);
+                  toast.error(`Failed to upload "${file[i].name}".`);
+                }
+                reject(error); // Mark this upload as failed
+              },
             }
-          } else {
-            console.error("Unknown error:", error);
-            toast.success("Upload file success");
-          }
-          setIsUpload(false);
-          setUploadProgress(0);
-        },
+          );
+        });
+      } catch (error) {
+        console.error(`Error uploading file ${file[i].name}:`, error);
+        // Continue to the next file even if the current one fails
       }
-    );
+    }
+  
+    // Final cleanup after all uploads are processed
+    setIsUpload(false);
+    setUploadProgress(100);
+    setFile([]); // Clear file list
+    if (successFiles === totalFiles) {
+      toast.success("All files uploaded successfully!");
+    } else {
+      toast.warning(
+        `${successFiles} out of ${totalFiles} files uploaded successfully.`
+      );
+    }
   };
 
 
@@ -153,43 +173,41 @@ const UploadZoneComponent = (props: Props) => {
           <div className="relative flex flex-col p-4 text-gray-400 border border-gray-200 rounded">
             <form onSubmit={handleSubmitUpload}>
               {isUpload ? (
-                <div className="flex flex-col items-center justify-center">
-                  <Box position="relative" display="inline-flex">
-                    <CircularProgress
-                      variant="determinate"
-                      value={uploadProgress}
-                      size={80}
-                      thickness={4}
-                      style={{ color: "#4A90E2" }}
-                    />
-                    <Box
-                      top={0}
-                      left={0}
-                      bottom={0}
-                      right={0}
-                      position="absolute"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <Typography
-                        variant="h6"
-                        component="div"
-                        style={{ color: "#4A90E2", fontWeight: "bold" }}
-                      >
-                        {`${Math.round(uploadProgress)}%`}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Typography
-                    variant="body1"
-                    className="text-center mt-4 text-gray-600"
+              <div className="flex flex-col items-center justify-center">
+                <Box position="relative" display="inline-flex">
+                  <CircularProgress
+                    variant="determinate"
+                    value={uploadProgress}
+                    size={80}
+                    thickness={4}
+                    style={{ color: "#4A90E2" }}
+                  />
+                  <Box
+                    top={0}
+                    left={0}
+                    bottom={0}
+                    right={0}
+                    position="absolute"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
                   >
-                    {uploadProgress === 100
-                      ? "Please wait a moment"
-                      : "Uploading..."}
-                  </Typography>
-                </div>
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      style={{ color: "#4A90E2", fontWeight: "bold" }}
+                    >
+                      {`${Math.round(uploadProgress)}%`}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Typography
+                  variant="body1"
+                  className="text-center mt-4 text-gray-600"
+                >
+                  {`Uploading ${currentUploadingFileIndex}/${file.length} file...`}
+                </Typography>
+              </div>
               ) : (
                 <>
                   <div 

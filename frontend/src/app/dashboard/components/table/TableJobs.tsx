@@ -1009,7 +1009,7 @@ const TableJobs = (props: Props) => {
                 </ul>
 
                 <div className="mt-2 text-base font-semibold leading-7 text-gray-900">
-                  Technicall Skills
+                  Technical Skills
                 </div>
                 <div className="px-2 max-w-[500px]">
                   {(jobDetailQuery.data?.technical_skill || []).length > 0 ? (
