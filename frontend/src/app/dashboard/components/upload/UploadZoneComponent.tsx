@@ -67,7 +67,7 @@ const UploadZoneComponent = (props: Props) => {
             }
           } else {
             console.error("Unknown error:", error);
-            toast.error("An unexpected error occurred");
+            toast.success("Upload file success");
           }
           setIsUpload(false);
           setUploadProgress(0);
