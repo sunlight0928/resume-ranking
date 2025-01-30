@@ -23,12 +23,15 @@ export function useListCandidateData(
   );
 }
 
-export function useUploadFileData(files: File[]): UseMutationResult<any> {
-  const formData = new FormData();
-  files.forEach((file) => {
-    formData.append("file_upload", file);
+export function useUploadFileData(setProgress: (progress: number) => void) {
+  return useMutation(({ files }: { files: File[] }) => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("file_upload", file);
+    });
+
+    return uploadFileAxios(formData, setProgress); // Pass formData and setProgress correctly
   });
-  return useMutation(["upload-cv"], () => uploadFileAxios(formData));
 }
 
 export function useListFileDetailData(

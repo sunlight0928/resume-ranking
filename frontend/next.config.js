@@ -8,9 +8,17 @@ const nextConfig = {
   //   appDir: true,
   // },
   reactStrictMode: true,
+  productionBrowserSourceMaps: false,
   // swcMinify: true,
   // output: "export",
   // output: "standalone",
+  webpack: (config, { dev }) => {
+    if (!dev) {
+      // Remove source map references in production
+      config.devtool = false;
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig;

@@ -10,10 +10,11 @@ from flask import Flask
 def create_app(settings_module):
     app = Flask(__name__)
     app.config.from_object(settings_module)
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Set max upload size to 16 MB
 
     # Initialize the extensions
     mongo.init_app(app)
-    cors.init_app(app, supports_credentials="true", resources={r"*": {"origins": "*"}})
+    cors.init_app(app, supports_credentials="true", resources={r"*": {"origins": "http://localhost:3000"}})
 
     # Logging configuration
     configure_logging(app)
