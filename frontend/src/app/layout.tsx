@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ContextProvider } from "./context/ContextProvider";
 import "./globals.css";
 import ReactQueryWrapper from "./react-query/ReactQueryWrapper";
+import { ThemeProvider } from "./components/theme/ThemeProvider";
 
 const roboto_mono = Roboto_Mono({
   variable: "--font-roboto-mono",
@@ -16,17 +17,19 @@ export const metadata = {
   description: "ResumeGenie - Resume Matching",
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${roboto_mono.variable}`}>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      ></link>
       <body>
-        <ReactQueryWrapper>
-          <ContextProvider>{children}</ContextProvider>
-        </ReactQueryWrapper>
+        <ThemeProvider defaultTheme="light">
+          <ReactQueryWrapper>
+            <ContextProvider>{children}</ContextProvider>
+          </ReactQueryWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,3 +1,141 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* Blue Theme */
+    --blue-light: 241 238 254; /* #f1eefe rgb(241, 238, 254) */
+    --blue-light-hover: 234 230 253; /* #eae6fd rgb(234, 230, 253) */
+    --blue-light-active: 211 204 251; /* #d3ccfb rgb(211, 204, 251) */
+    --blue-normal: 112 89 243; /* #7059f3 rgb(112, 89, 243) */
+    --blue-normal-hover: 101 80 219; /* #6550db rgb(101, 80, 219) */
+    --blue-normal-active: 90 71 194; /* #5a47c2 rgb(90, 71, 194) */
+    --blue-dark: 84 67 182; /* #5443b6 rgb(84, 67, 182) */
+    --blue-dark-hover: 67 53 146; /* #433592 rgb(67, 53, 146) */
+    --blue-dark-active: 50 40 109; /* #32286d rgb(50, 40, 109) */
+    --blue-darker: 39 31 85; /* #271f55 rgb(39, 31, 85) */
+
+    /* White Theme */
+    --white-light: 253 253 253; /* #fdfdfd rgb(253, 253, 253) */
+    --white-light-hover: 251 251 251; /* #fbfbfb rgb(251, 251, 251) */
+    --white-light-active: 247 247 247; /* #f7f7f7 rgb(247, 247, 247) */
+    --white-normal: 230 230 230; /* #e6e6e6 rgb(230, 230, 230) */
+    --white-normal-hover: 207 207 207; /* #cfcfcf rgb(207, 207, 207) */
+    --white-normal-active: 184 184 184; /* #b8b8b8 rgb(184, 184, 184) */
+    --white-dark: 173 173 173; /* #adadad rgb(173, 173, 173) */
+    --white-dark-hover: 138 138 138; /* #8a8a8a rgb(138, 138, 138) */
+    --white-dark-active: 103 103 103; /* #676767 rgb(103, 103, 103) */
+    --white-darker: 81 81 81; /* #515151 rgb(81, 81, 81) */
+
+    /* Black Theme */
+    --black-light: 230 230 230; /* #e6e6e6 rgb(230, 230, 230) */
+    --black-light-hover: 217 217 217; /* #d9d9d9 rgb(217, 217, 217) */
+    --black-light-active: 176 176 176; /* #b0b0b0 rgb(176, 176, 176) */
+    --black-normal: 0 0 0; /* #000000 rgb(0, 0, 0) */
+    --black-normal-hover: 0 0 0; /* #000000 rgb(0, 0, 0) */
+    --black-normal-active: 0 0 0; /* #000000 rgb(0, 0, 0) */
+    --black-dark: 0 0 0; /* #000000 rgb(0, 0, 0) */
+    --black-dark-hover: 0 0 0; /* #000000 rgb(0, 0, 0) */
+    --black-dark-active: 0 0 0; /* #000000 rgb(0, 0, 0) */
+    --black-darker: 0 0 0; /* #000000 rgb(0, 0, 0) */
+
+    /* System Colors */
+    --background: 0 0% 100%;
+    --foreground: 240 6% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 6% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 6% 10%;
+
+    --primary: var(--blue-normal);
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 57%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: var(--blue-normal);
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 4%;
+    --foreground: 0 0% 100%;
+
+    --card: 240 10% 4%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 240 10% 4%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: var(--blue-normal);
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 26%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 5% 26%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 240 5% 26%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 5% 26%;
+    --input: 240 5% 26%;
+    --ring: var(--blue-normal);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Custom styles for the logo title */
+.logo-title {
+  font-family: "Helvetica", sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 125%;
+  background: linear-gradient(180deg, #7059f3 0%, #41348d 100%), #7059f3;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+/* Responsive adjustments for the logo title */
+@media (max-width: 1024px) {
+  .logo-title {
+    width: auto;
+    height: auto;
+    font-size: 24px;
+  }
+}

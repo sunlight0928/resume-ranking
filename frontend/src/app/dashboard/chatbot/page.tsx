@@ -27,11 +27,11 @@ const CHATBOT = (props: Props) => {
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        messages: updatedMessages
-      })
+        messages: updatedMessages,
+      }),
     });
 
     if (!response.ok) {
@@ -63,15 +63,15 @@ const CHATBOT = (props: Props) => {
           ...messages,
           {
             role: "assistant",
-            content: chunkValue
-          }
+            content: chunkValue,
+          },
         ]);
       } else {
         setMessages((messages) => {
           const lastMessage = messages[messages.length - 1];
           const updatedMessage = {
             ...lastMessage,
-            content: lastMessage.content + chunkValue
+            content: lastMessage.content + chunkValue,
           };
           return [...messages.slice(0, -1), updatedMessage];
         });
@@ -83,8 +83,8 @@ const CHATBOT = (props: Props) => {
     setMessages([
       {
         role: "assistant",
-        content: `Hi Roscoe! I'm an AI assistant. I can help you with things like answering questions, providing information, and helping with tasks. How can I help you?`
-      }
+        content: `Hi Roscoe! I'm an AI assistant. I can help you with things like answering questions, providing information, and helping with tasks. How can I help you?`,
+      },
     ]);
   };
 
@@ -96,44 +96,34 @@ const CHATBOT = (props: Props) => {
     setMessages([
       {
         role: "assistant",
-        content: `Hi Roscoe! I'm an AI assistant. I can help you with things like answering questions, providing information, and helping with tasks. How can I help you?`
-      }
+        content: `Hi Roscoe! I'm an AI assistant. I can help you with things like answering questions, providing information, and helping with tasks. How can I help you?`,
+      },
     ]);
   }, []);
 
   return (
     <>
       {/* Set the title and meta description of the page */}
-      <HeadMain
-        title="Jobs - Management | Dashboard - ResumeGenie"
-        description="Dashboard - ResumeGenie"
-      />
+      <HeadMain title="Jobs - Management | Dashboard - ResumeGenie" description="Dashboard - ResumeGenie" />
 
       {/* Display the breadcrumb */}
       <BreadcrumbDashboard title="AI assistant" />
 
       {/* Main content of the FAQ page */}
-      <div className="px-4 pt-6">
-        <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-white dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-          {/* <div className="font-bold text-lg">FAQ</div> */}
+      <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-white dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        {/* <div className="font-bold text-lg">FAQ</div> */}
 
-          {/* List of FAQs */}
-          <div id="list-faq" className="mt-4">
-            <div className="flex flex-col mt-6">
-              <div className="overflow-x-auto">
-                <div className="inline-block min-w-full align-middle">
-                  <div className="overflow-hidden shadow">
-                    {/* Render the FAQ table */}
-                    <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
-                      <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
-                        <Chat
-                          messages={messages}
-                          loading={loading}
-                          onSend={handleSend}
-                          onReset={handleReset}
-                        />
-                        <div ref={messagesEndRef} />
-                      </div>
+        {/* List of FAQs */}
+        <div id="list-faq" className="mt-4">
+          <div className="flex flex-col mt-6">
+            <div className="overflow-x-auto">
+              <div className="inline-block min-w-full align-middle">
+                <div className="overflow-hidden shadow">
+                  {/* Render the FAQ table */}
+                  <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
+                    <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
+                      <Chat messages={messages} loading={loading} onSend={handleSend} onReset={handleReset} />
+                      <div ref={messagesEndRef} />
                     </div>
                   </div>
                 </div>
