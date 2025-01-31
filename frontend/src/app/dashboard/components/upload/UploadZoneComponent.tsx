@@ -12,7 +12,7 @@ type Props = {
 };
 
 const UploadZoneComponent = (props: Props) => {
-  const [file, setFile] = useState<File[] | []>([]);
+  const [file, setFile] = useState<File[]>([]);
   const [errorContent, setErrorContent] = useState<string | null>(null);
   const [isUpload, setIsUpload] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -32,22 +32,22 @@ const UploadZoneComponent = (props: Props) => {
 
   const handleSubmitUpload = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     if (file.length === 0) {
       toast.warning("No files selected to upload.");
       return;
     }
-  
+
     const totalFiles = file.length;
     let successFiles = 0;
-  
+
     setIsUpload(true);
     setUploadProgress(0);
-  
+
     // Process each file upload one by one
     for (let i = 0; i < totalFiles; i++) {
       setCurrentUploadingFileIndex(i + 1); // Update the current uploading file index (1-based)
-  
+
       try {
         // Upload the file and track progress
         await new Promise<void>((resolve, reject) => {
@@ -82,7 +82,7 @@ const UploadZoneComponent = (props: Props) => {
         // Continue to the next file even if the current one fails
       }
     }
-  
+
     // Final cleanup after all uploads are processed
     setIsUpload(false);
     setUploadProgress(100);
@@ -90,35 +90,36 @@ const UploadZoneComponent = (props: Props) => {
     if (successFiles === totalFiles) {
       toast.success("All files uploaded successfully!");
     } else {
-      toast.warning(
-        `${successFiles} out of ${totalFiles} files uploaded successfully.`
-      );
+      toast.warning(`${successFiles} out of ${totalFiles} files uploaded successfully.`);
     }
   };
-
 
   const handleChangeUploadFile = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files;
     const newFile = [...file];
-  
+
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-  
+
     if (selectedFiles) {
       for (let i = 0; i < selectedFiles.length; i++) {
         const currentFile = selectedFiles[i];
-  
+
         // Validate file type
-        if (!["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(currentFile.type)) {
+        if (
+          !["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(
+            currentFile.type
+          )
+        ) {
           toast.error(`File "${currentFile.name}" is not a valid PDF or DOCX file.`);
           continue;
         }
-  
+
         // Validate file size
         if (currentFile.size > MAX_FILE_SIZE) {
           toast.error(`File "${currentFile.name}" exceeds the maximum size of 5 MB.`);
           continue;
         }
-  
+
         // Prevent adding duplicate files
         if (!newFile.some((f) => f.name === currentFile.name && f.size === currentFile.size)) {
           newFile.push(currentFile);
@@ -139,10 +140,10 @@ const UploadZoneComponent = (props: Props) => {
     event.stopPropagation();
 
     setIsDragging(false);
-  
+
     const droppedFiles = event.dataTransfer.files;
     const newFile = [...file];
-  
+
     if (droppedFiles) {
       for (let i = 0; i < droppedFiles.length; i++) {
         const currentFile = droppedFiles[i];
@@ -196,19 +197,12 @@ const UploadZoneComponent = (props: Props) => {
                       alignItems="center"
                       justifyContent="center"
                     >
-                      <Typography
-                        variant="h6"
-                        component="div"
-                        style={{ color: "#4A90E2", fontWeight: "bold" }}
-                      >
+                      <Typography variant="h6" component="div" style={{ color: "#4A90E2", fontWeight: "bold" }}>
                         {`${Math.round(uploadProgress)}%`}
                       </Typography>
                     </Box>
                   </Box>
-                  <Typography
-                    variant="body1"
-                    className="text-center mt-4 text-gray-600"
-                  >
+                  <Typography variant="body1" className="text-center mt-4 text-gray-600">
                     {`Uploading ${currentUploadingFileIndex}/${file.length} file...`}
                   </Typography>
                 </div>
@@ -236,9 +230,7 @@ const UploadZoneComponent = (props: Props) => {
                         ? `${file.length} files selected, Total size: ${getTotalFileSize().toFixed(2)} MB`
                         : "Drag your files here or click this area to upload."}
                     </p>
-                    <div className="text-center text-red-500 font-bold">
-                      {errorContent}
-                    </div>
+                    <div className="text-center text-red-500 font-bold">{errorContent}</div>
                   </div>
                 </div>
               )}
@@ -248,19 +240,14 @@ const UploadZoneComponent = (props: Props) => {
                     className="p-2 flex text-xs font-medium text-center text-white bg-green-500 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover-bg-green-700 dark:focus:ring-green-800"
                     type="submit"
                   >
-                    <MdOutlineCloudUpload
-                      style={{ fontSize: "18px" }}
-                      className="mr-2"
-                    />{" "}
-                    Upload
+                    <MdOutlineCloudUpload style={{ fontSize: "18px" }} className="mr-2" /> Upload
                   </button>
                   <button
                     className="p-2 flex text-xs font-medium text-center text-white bg-red-500 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 ml-4"
                     type="button"
                     onClick={clearFile}
                   >
-                    <MdClear style={{ fontSize: "18px" }} className="mr-2" />{" "}
-                    Clear
+                    <MdClear style={{ fontSize: "18px" }} className="mr-2" /> Clear
                   </button>
                 </div>
               )}
