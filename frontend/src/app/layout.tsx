@@ -20,10 +20,12 @@ export const metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${roboto_mono.variable}`}>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-      ></link>
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        ></link>
+      </head>
       <body>
         <ThemeProvider defaultTheme="light">
           <ReactQueryWrapper>
