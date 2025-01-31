@@ -11,7 +11,7 @@ import {
 import { TablePagination, Drawer } from "@mui/material";
 import { Dialog, Transition } from "@headlessui/react";
 import { ToastContainer, toast } from "react-toastify";
-import { PDFViewer, Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { PDFViewer, Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import { FaDownload, FaPrint, FaSearch } from "react-icons/fa";
 import { jsPDF } from "jspdf";
 
@@ -23,18 +23,20 @@ type Props = {
 const pdfStyles = StyleSheet.create({
   page: {
     padding: 40,
+    paddingTop: 10,
     fontSize: 12,
     fontFamily: "Helvetica",
   },
   title: {
     fontSize: 20,
     textAlign: "center",
-    color: "#0000FF", // Blue color for the title
-    marginBottom: 30,
+    color: "#5443B6", // Blue color for the title
+    marginBottom: 20,
+    fontWeight: "bold"
   },
   sectionTitle: {
     fontSize: 14,
-    color: "#0000FF", // Blue color for section titles
+    color: "#5443B6", // Blue color for section titles
     marginBottom: 10,
     marginTop: 20,
   },
@@ -849,6 +851,14 @@ const TableCandidates = (props2: Props) => {
                     <PDFViewer className="w-full h-full">
                       <Document>
                         <Page size="A4" style={pdfStyles.page}>
+                          <Image 
+                            src="/pdf-maker.png" // Replace with the actual path or URL to your image
+                            style={{
+                              width: 140, // Adjust the width as needed
+                              height: 100, // Adjust the height as needed
+                              alignSelf: 'center'
+                            }}
+                          />
                           {/* Candidate Name */}
                           <Text style={pdfStyles.title}>
                             {fileDetailQuery.data?.candidate_name || "Candidate"}

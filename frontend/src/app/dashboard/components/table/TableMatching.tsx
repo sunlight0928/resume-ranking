@@ -58,7 +58,7 @@ const pdfStyles = StyleSheet.create({
     fontSize: 20,
     textAlign: "center",
     color: "#5443B6", // Blue color for the title
-    marginBottom: 30,
+    marginBottom: 20,
     fontWeight: "bold"
   },
   sectionTitle: {
