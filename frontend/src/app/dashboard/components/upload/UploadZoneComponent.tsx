@@ -154,6 +154,10 @@ const UploadZoneComponent = (props: Props) => {
     }
   };
 
+  const getTotalFileSize = () => {
+    return file.reduce((total, file) => total + file.size, 0) / (1024 * 1024); // Convert bytes to MB
+  };
+
   return (
     <>
       <ToastContainer
@@ -173,99 +177,70 @@ const UploadZoneComponent = (props: Props) => {
           <div className="relative flex flex-col p-4 text-gray-400 border border-gray-200 rounded">
             <form onSubmit={handleSubmitUpload}>
               {isUpload ? (
-              <div className="flex flex-col items-center justify-center">
-                <Box position="relative" display="inline-flex">
-                  <CircularProgress
-                    variant="determinate"
-                    value={uploadProgress}
-                    size={80}
-                    thickness={4}
-                    style={{ color: "#4A90E2" }}
-                  />
-                  <Box
-                    top={0}
-                    left={0}
-                    bottom={0}
-                    right={0}
-                    position="absolute"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Typography
-                      variant="h6"
-                      component="div"
-                      style={{ color: "#4A90E2", fontWeight: "bold" }}
+                <div className="flex flex-col items-center justify-center">
+                  <Box position="relative" display="inline-flex">
+                    <CircularProgress
+                      variant="determinate"
+                      value={uploadProgress}
+                      size={80}
+                      thickness={4}
+                      style={{ color: "#4A90E2" }}
+                    />
+                    <Box
+                      top={0}
+                      left={0}
+                      bottom={0}
+                      right={0}
+                      position="absolute"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
                     >
-                      {`${Math.round(uploadProgress)}%`}
-                    </Typography>
+                      <Typography
+                        variant="h6"
+                        component="div"
+                        style={{ color: "#4A90E2", fontWeight: "bold" }}
+                      >
+                        {`${Math.round(uploadProgress)}%`}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
-                <Typography
-                  variant="body1"
-                  className="text-center mt-4 text-gray-600"
-                >
-                  {`Uploading ${currentUploadingFileIndex}/${file.length} file...`}
-                </Typography>
-              </div>
+                  <Typography
+                    variant="body1"
+                    className="text-center mt-4 text-gray-600"
+                  >
+                    {`Uploading ${currentUploadingFileIndex}/${file.length} file...`}
+                  </Typography>
+                </div>
               ) : (
-                <>
-                  <div 
-                    className={`relative flex flex-col items-center justify-center p-0 border-2 ${
-                      isDragging ? "border-blue-500 bg-blue-100" : "border-gray-300"
-                    } border-dashed rounded-lg transition-all`}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleFileDrop}>
+                <div
+                  className={`relative flex flex-col items-center justify-center p-0 border-2 ${
+                    isDragging ? "border-blue-500 bg-blue-100" : "border-gray-300"
+                  } border-dashed rounded-lg transition-all`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleFileDrop}
+                >
                   <input
                     accept=".pdf,.docx"
                     type="file"
                     className="absolute inset-0 z-50 w-full h-full p-0 m-0 outline-none opacity-0 cursor-pointer"
                     onChange={handleChangeUploadFile}
                     id="file-input"
-                    multiple // Ensures multiple files are accepted
+                    multiple
                   />
-
-                    <div className="flex flex-row items-center justify-center py-10 text-center z-10">
-                    {file.length > 0 ? (
-                      <div className="flex flex-wrap gap-4">
-                        {file.map((file, index) => (
-                          <div
-                            key={index}
-                            className="flex flex-col items-center justify-center border rounded-lg p-2 shadow-md w-40"
-                          >
-                            <Image
-                              src="/media/svg/file-icon.svg"
-                              alt="File Upload"
-                              width={50}
-                              height={50}
-                            />
-                            <Typography
-                              variant="body2"
-                              className="text-center mt-2 truncate w-full"
-                            >
-                              {file.name}
-                            </Typography>
-                            <Typography variant="caption" className="text-gray-500">
-                              {(file.size / 1024 / 1024).toFixed(2)} MB
-                            </Typography>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center">
-                        <FaRegFilePdf className="text-gray-500 w-8 h-8" />
-                        <p className="text-gray-500 text-center">
-                          Drag your files here or click this area to upload.
-                        </p>
-                      </div>
-                    )}
-                      <div className="text-center text-red-500 font-bold">
-                        {errorContent}
-                      </div>
+                  <div className="flex flex-col items-center justify-center py-10 text-center z-10">
+                    <FaRegFilePdf className="text-gray-500 w-8 h-8" />
+                    <p className="text-gray-500 text-center mt-2">
+                      {file.length > 0
+                        ? `${file.length} files selected, Total size: ${getTotalFileSize().toFixed(2)} MB`
+                        : "Drag your files here or click this area to upload."}
+                    </p>
+                    <div className="text-center text-red-500 font-bold">
+                      {errorContent}
                     </div>
                   </div>
-                </>
+                </div>
               )}
               {file && !isUpload && (
                 <div className="pt-4 flex justify-center items-start text-center">
