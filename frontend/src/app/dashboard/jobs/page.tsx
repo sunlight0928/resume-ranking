@@ -9,19 +9,17 @@ const TableJobs = dynamic(() => import("../components/table/TableJobs"), { ssr: 
 
 type Props = {};
 
-const FAQ = (props: Props) => {
+const JobManagementPage = (props: Props) => {
   return (
     <>
       <HeadMain title="Job Management • ResumeGenie" description="Job Management • ResumeGenie" />
       <BreadcrumbDashboard title="Job Management" />
-      <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-white dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-        <div id="job-management" className="mt-4">
-          <div className="flex flex-col mt-6">
-            <div className="overflow-x-auto">
-              <div className="inline-block min-w-full align-middle">
-                <div className="overflow-hidden shadow">
-                  <TableJobs />
-                </div>
+      <div className="bg-white rounded-xl shadow-sm dark:text-white dark:bg-gray-900">
+        <div className="flex flex-col" id="job-management">
+          <div className="overflow-x-auto">
+            <div className="inline-block min-w-full align-middle">
+              <div className="overflow-hidden shadow">
+                <TableJobs />
               </div>
             </div>
           </div>
@@ -31,4 +29,4 @@ const FAQ = (props: Props) => {
   );
 };
 
-export default FAQ;
+export default JobManagementPage;

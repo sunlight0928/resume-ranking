@@ -19,13 +19,21 @@ const buttonVariants = cva(
     "focus-visible:ring-ring",
     "disabled:pointer-events-none",
     "disabled:opacity-50",
+    "gap-2",
   ],
   {
     variants: {
       variant: {
         default: ["bg-blue-normal", "text-white", "hover:bg-blue-normal-hover"],
         destructive: ["bg-destructive", "text-destructive-foreground", "hover:bg-destructive/90"],
-        outline: ["border", "border-input", "bg-background", "hover:bg-accent", "hover:text-accent-foreground"],
+        outline: [
+          "border",
+          "border-blue-normal",
+          "bg-transparent",
+          "hover:bg-accent",
+          "hover:text-accent-foreground",
+          "text-blue-normal",
+        ],
         secondary: ["bg-blue-light", "text-blue-normal", "hover:bg-blue-light-hover"],
         ghost: ["hover:bg-accent", "hover:text-accent-foreground"],
         link: ["text-primary", "underline-offset-4", "hover:underline"],

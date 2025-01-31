@@ -52,9 +52,9 @@ const NavbarDashboard = ({ toggleSidebar }: { toggleSidebar: () => void }) => {
           </div>
           <div className="flex flex-row items-center gap-2 justify-center h-9 mr-2">
             <img src="../assets/avatar.png" className="w-9 h-9 rounded-full bg-[#f1effe] dark:bg-[#1C1C28]" />
-            <div className="flex flex-col text-center h-9">
-              <span className="font-bold text-lg text-[#344054] h-6 dark:text-white-dark">Julian Lee</span>
-              <span className="font-light text-xs mt-[-1px] text-[#344054] dark:text-white-dark h-3 opacity-40">
+            <div className="flex-col text-start h-9 hidden lg:flex">
+              <span className="font-bold text-lg text-[#344054] h-6 dark:text-white-dark">Roscoe Chambers</span>
+              <span className="font-normal text-xs ml-[4px] mt-[-1px] text-[#344054] dark:text-white-dark h-3 opacity-60">
                 Primary User
               </span>
             </div>

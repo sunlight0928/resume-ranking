@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
+import React, { useState, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Dialog, Transition } from "@headlessui/react";
 import { jsPDF } from "jspdf";
@@ -27,6 +27,8 @@ import {
   useAddFAQData,
   useUpdateFAQData,
 } from "@/app/hooks/react-query/logging/faq/useFAQData";
+import { Calendar, Plus, Search } from "lucide-react";
+import { Button } from "@/app/components/ui/Button";
 
 type Props = {};
 
@@ -123,23 +125,15 @@ const TableJobs = (props: Props) => {
     job_name: "",
     job_description: "",
   });
-  const ReactQuill = useMemo(
-    () => dynamic(() => import("react-quill"), { ssr: false }),
-    []
-  );
+  const ReactQuill = useMemo(() => dynamic(() => import("react-quill"), { ssr: false }), []);
 
-  const { data, isLoading, isError, isPreviousData, refetch } = useFAQData(
-    currentPage + 1,
-    pageSize
-  );
+  const { data, isLoading, isError, isPreviousData, refetch } = useFAQData(currentPage + 1, pageSize);
 
   const filteredData = useMemo(() => {
     if (!data?.results) return [];
-    return data.results.filter((job) =>
-      job.job_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    return data.results.filter((job) => job.job_name.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [data, searchTerm]);
-  
+
   const {
     data: detailFAQData,
     isLoading: isDetailFAQLoading,
@@ -212,15 +206,7 @@ const TableJobs = (props: Props) => {
     columnHelper.display({
       header: "ID",
       cell: ({ row }: { row: Row<any> }) => {
-        return (
-          <div>
-            {currentPage !== 0 ? (
-              <>{currentPage * 10 + (row.index + 1)}</>
-            ) : (
-              <>{row.index + 1}</>
-            )}
-          </div>
-        );
+        return <div>{currentPage !== 0 ? <>{currentPage * 10 + (row.index + 1)}</> : <>{row.index + 1}</>}</div>;
       },
     }),
     columnHelper.display({
@@ -236,16 +222,10 @@ const TableJobs = (props: Props) => {
         if (!row.original.job_description) {
           return null;
         }
-        const content = showFullContent
-          ? row.original.job_description
-          : row.original.job_description.slice(0, 200);
+        const content = showFullContent ? row.original.job_description : row.original.job_description.slice(0, 200);
         return (
           <>
-            <div
-              className="whitespace-pre-line text-left"
-              id="answer"
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
+            <div className="whitespace-pre-line text-left" id="answer" dangerouslySetInnerHTML={{ __html: content }} />
             {row.original.job_description.length > 200 && (
               <button
                 className="text-blue-500 hover:underline focus:outline-none"
@@ -308,11 +288,7 @@ const TableJobs = (props: Props) => {
   }
 
   if (isError) {
-    return (
-      <h4 className="text-center text-red-500 font-medium text-xl">
-        System Error Please Try Again Later !
-      </h4>
-    );
+    return <h4 className="text-center text-red-500 font-medium text-xl">System Error Please Try Again Later !</h4>;
   }
 
   const handleModifyFAQ = async (faqId: number) => {
@@ -486,9 +462,9 @@ const TableJobs = (props: Props) => {
       toast.error("Job details are not loaded yet.");
       return;
     }
-  
+
     const doc = new jsPDF(); // Create a new jsPDF instance
-  
+
     // Extract job details from `jobDetailQuery.data`
     const jobName = jobDetailQuery.data.job_name || "Job";
     const educations = jobDetailQuery.data.degree || [];
@@ -498,20 +474,20 @@ const TableJobs = (props: Props) => {
     const softSkills = jobDetailQuery.data.soft_skill || [];
     const certificates = jobDetailQuery.data.certificate || [];
     const createdAt = `Job Created Date: ${new Date(jobDetailQuery.data.created_at).toLocaleDateString()}`;
-  
+
     const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
     const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
-  
+
     // Set job name title in blue, centered, and with a 30px gap from the top
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
     doc.text(jobName, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
-  
+
     // Reset font styles for the rest of the content
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-  
+
     // Helper function to add text with proper line wrapping and page handling
     const addWrappedTextWithBullet = (
       docInstance: any,
@@ -535,7 +511,7 @@ const TableJobs = (props: Props) => {
       });
       return currentY; // Return the updated `y` position
     };
-  
+
     // Add sections with data
     const addSection = (title: string, items: string[], yOffset: number): number => {
       if (items.length > 0) {
@@ -549,7 +525,7 @@ const TableJobs = (props: Props) => {
         }
         doc.text(title, 10, yOffset + 4); // Add section title
         yOffset += 10; // Adjust yOffset for section content
-  
+
         // Add the list items in normal font and black color
         doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
@@ -557,12 +533,12 @@ const TableJobs = (props: Props) => {
         items.forEach((item) => {
           yOffset = addWrappedTextWithBullet(doc, item, 15, yOffset, pageWidth - 30, 6); // Add wrapped text with bullet for each item
         });
-  
+
         yOffset += 4; // Add extra space after the section
       }
       return yOffset;
     };
-  
+
     let yOffset = 40; // Start content below the job name
     yOffset = addSection("Educations", educations, yOffset);
     yOffset = addSection("Experiences", experiences, yOffset);
@@ -570,7 +546,7 @@ const TableJobs = (props: Props) => {
     yOffset = addSection("Technical Skills", technicalSkills, yOffset);
     yOffset = addSection("Soft Skills", softSkills, yOffset);
     yOffset = addSection("Certificates", certificates, yOffset);
-  
+
     // Add "Job Created Date" with wrapping
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
@@ -585,10 +561,10 @@ const TableJobs = (props: Props) => {
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0); // Black color for the content
     yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
-  
+
     // Output the PDF as a blob for printing
     const pdfBlob = doc.output("blob"); // Get the PDF as a blob object
-  
+
     // Create a new window and print the PDF
     const pdfURL = URL.createObjectURL(pdfBlob);
     const printWindow = window.open(pdfURL, "_blank");
@@ -604,9 +580,9 @@ const TableJobs = (props: Props) => {
       toast.error("Job details are not loaded yet.");
       return;
     }
-  
+
     const doc = new jsPDF(); // Create a new jsPDF instance
-  
+
     // Extract job details from `jobDetailQuery.data`
     const jobName = jobDetailQuery.data.job_name || "Job";
     const educations = jobDetailQuery.data.degree || [];
@@ -616,20 +592,20 @@ const TableJobs = (props: Props) => {
     const softSkills = jobDetailQuery.data.soft_skill || [];
     const certificates = jobDetailQuery.data.certificate || [];
     const createdAt = `Job Created Date: ${new Date(jobDetailQuery.data.created_at).toLocaleDateString()}`;
-  
+
     const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
     const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
-  
+
     // Set job name title in blue, centered, and with a 30px gap from the top
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
     doc.text(jobName, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
-  
+
     // Reset font styles for the rest of the content
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-  
+
     // Helper function to add text with proper line wrapping and page handling
     const addWrappedTextWithBullet = (
       docInstance: any,
@@ -653,7 +629,7 @@ const TableJobs = (props: Props) => {
       });
       return currentY; // Return the updated `y` position
     };
-  
+
     // Add sections with data
     const addSection = (title: string, items: string[], yOffset: number): number => {
       if (items.length > 0) {
@@ -667,7 +643,7 @@ const TableJobs = (props: Props) => {
         }
         doc.text(title, 10, yOffset + 4); // Add section title
         yOffset += 10; // Adjust yOffset for section content
-  
+
         // Add the list items in normal font and black color
         doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
@@ -675,12 +651,12 @@ const TableJobs = (props: Props) => {
         items.forEach((item) => {
           yOffset = addWrappedTextWithBullet(doc, item, 15, yOffset, pageWidth - 30, 6); // Add wrapped text with bullet for each item
         });
-  
+
         yOffset += 4; // Add extra space after the section
       }
       return yOffset;
     };
-  
+
     let yOffset = 40; // Start content below the job name
     yOffset = addSection("Educations", educations, yOffset);
     yOffset = addSection("Experiences", experiences, yOffset);
@@ -688,7 +664,7 @@ const TableJobs = (props: Props) => {
     yOffset = addSection("Technical Skills", technicalSkills, yOffset);
     yOffset = addSection("Soft Skills", softSkills, yOffset);
     yOffset = addSection("Certificates", certificates, yOffset);
-  
+
     // Add "Job Created Date" with wrapping
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
@@ -703,7 +679,7 @@ const TableJobs = (props: Props) => {
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0); // Black color for the content
     yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
-  
+
     // Dynamically set the file name using the `jobName`
     const fileName = `${jobName}.pdf`;
     doc.save(fileName);
@@ -723,37 +699,113 @@ const TableJobs = (props: Props) => {
         pauseOnHover
         theme="dark"
       />
-
-      <div className="flex items-center justify-between mb-4">
-        {/* "Create New Job" Button */}
-        <button
-          type="button"
-          className="px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          onClick={() => handleAddFAQ()}
-        >
-          Create New Job
-        </button>
-        
-        {/* Search Box */}
-        <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
+      <div className="flex items-center justify-start sm:justify-between flex-row gap-0 sm:gap-4 w-full h-[78px] px-6 py-4">
+        <div className="relative w-[calc(100vw-120px)] sm:w-[calc(100vw-260px)] md:w-[427px]">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#92929d]" />
           <input
-            type="text"
-            placeholder="Search"
-            className="px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-600 h-8 w-[300px] bg-gray-50 text-gray-900 border border-gray-300 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:border-gray-600"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // Update search term state
+            type="search"
+            placeholder="Search here..."
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-lg border border-[#e2e2ea] bg-white px-9 py-2 text-[#171725] focus:border-[#e2e2ea] focus:outline-none dark:border-[#1C1C28] dark:bg-[#1C1C28] dark:text-white"
           />
-          <button
-            type="button"
-            className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-blue-600"
-          >
-            <FaSearch />
+          <button className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 bg-transparent">
+            <svg width="43" height="25" viewBox="0 0 43 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0.5" y="0.5" width="42" height="24" rx="6" fill="#ECECEC" />
+              <path
+                d="M17.1663 9.83398H11.833V15.1673H17.1663V9.83398Z"
+                stroke="#898E95"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9.83301 19.166C10.933 19.166 11.833 18.266 11.833 17.166V15.166H9.83301C8.73301 15.166 7.83301 16.066 7.83301 17.166C7.83301 18.266 8.73301 19.166 9.83301 19.166Z"
+                stroke="#898E95"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9.83301 9.83398H11.833V7.83398C11.833 6.73398 10.933 5.83398 9.83301 5.83398C8.73301 5.83398 7.83301 6.73398 7.83301 7.83398C7.83301 8.93398 8.73301 9.83398 9.83301 9.83398Z"
+                stroke="#898E95"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M17.167 9.83398H19.167C20.267 9.83398 21.167 8.93398 21.167 7.83398C21.167 6.73398 20.267 5.83398 19.167 5.83398C18.067 5.83398 17.167 6.73398 17.167 7.83398V9.83398Z"
+                stroke="#898E95"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M19.167 19.166C20.267 19.166 21.167 18.266 21.167 17.166C21.167 16.066 20.267 15.166 19.167 15.166H17.167V17.166C17.167 18.266 18.067 19.166 19.167 19.166Z"
+                stroke="#898E95"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M29.648 17.5V7.784H30.964V17.5H29.648ZM30.544 13.23V12.026H35.612V13.23H30.544ZM30.544 8.988V7.784H35.85V8.988H30.544Z"
+                fill="#898E95"
+              />
+            </svg>
           </button>
         </div>
+        <div className="flex gap-0.5 w-fit">
+          <div className="flex-row gap-4 hidden sm:flex">
+            <Button variant="outline" color="normal">
+              <span className="hidden lg:block">Date filter</span>
+              <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M11.6616 0.333984C12.0066 0.333984 12.2866 0.613984 12.2866 0.958984L12.287 1.66549C13.5037 1.74891 14.5143 2.16569 15.2295 2.8824C16.0103 3.66657 16.4212 4.79407 16.417 6.14657V13.7491C16.417 16.5257 14.6537 18.2507 11.8162 18.2507H4.76783C1.93033 18.2507 0.166992 16.5016 0.166992 13.6857V6.1449C0.166992 3.52589 1.73954 1.84477 4.30423 1.66578L4.30474 0.958984C4.30474 0.613984 4.58474 0.333984 4.92974 0.333984C5.27474 0.333984 5.55474 0.613984 5.55474 0.958984L5.55449 1.64982H11.0362L11.0366 0.958984C11.0366 0.613984 11.3166 0.333984 11.6616 0.333984ZM15.167 7.75398H1.41699V13.6857C1.41699 15.8241 2.60699 17.0007 4.76783 17.0007H11.8162C13.977 17.0007 15.167 15.8457 15.167 13.7491L15.167 7.75398ZM12.0013 12.9976C12.3463 12.9976 12.6263 13.2776 12.6263 13.6226C12.6263 13.9676 12.3463 14.2476 12.0013 14.2476C11.6563 14.2476 11.373 13.9676 11.373 13.6226C11.373 13.2776 11.6488 12.9976 11.9938 12.9976H12.0013ZM8.30341 12.9976C8.64841 12.9976 8.92841 13.2776 8.92841 13.6226C8.92841 13.9676 8.64841 14.2476 8.30341 14.2476C7.95841 14.2476 7.67508 13.9676 7.67508 13.6226C7.67508 13.2776 7.95091 12.9976 8.29591 12.9976H8.30341ZM4.59774 12.9976C4.94274 12.9976 5.22274 13.2776 5.22274 13.6226C5.22274 13.9676 4.94274 14.2476 4.59774 14.2476C4.25274 14.2476 3.96858 13.9676 3.96858 13.6226C3.96858 13.2776 4.24524 12.9976 4.59024 12.9976H4.59774ZM12.0013 9.75865C12.3463 9.75865 12.6263 10.0387 12.6263 10.3837C12.6263 10.7287 12.3463 11.0087 12.0013 11.0087C11.6563 11.0087 11.373 10.7287 11.373 10.3837C11.373 10.0387 11.6488 9.75865 11.9938 9.75865H12.0013ZM8.30341 9.75865C8.64841 9.75865 8.92841 10.0387 8.92841 10.3837C8.92841 10.7287 8.64841 11.0087 8.30341 11.0087C7.95841 11.0087 7.67508 10.7287 7.67508 10.3837C7.67508 10.0387 7.95091 9.75865 8.29591 9.75865H8.30341ZM4.59774 9.75865C4.94274 9.75865 5.22274 10.0387 5.22274 10.3837C5.22274 10.7287 4.94274 11.0087 4.59774 11.0087C4.25274 11.0087 3.96858 10.7287 3.96858 10.3837C3.96858 10.0387 4.24524 9.75865 4.59024 9.75865H4.59774ZM11.0362 2.89982H5.55449L5.55474 3.70148C5.55474 4.04648 5.27474 4.32648 4.92974 4.32648C4.58474 4.32648 4.30474 4.04648 4.30474 3.70148L4.3043 2.91874C2.43744 3.07556 1.41699 4.2072 1.41699 6.1449V6.50398H15.167L15.167 6.1449C15.1703 5.11573 14.8937 4.31573 14.3445 3.76573C13.8624 3.28224 13.1577 2.99349 12.2873 2.91914L12.2866 3.70148C12.2866 4.04648 12.0066 4.32648 11.6616 4.32648C11.3166 4.32648 11.0366 4.04648 11.0366 3.70148L11.0362 2.89982Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </Button>
+            <Button variant="default" color="normal" onClick={() => handleAddFAQ()}>
+              <span className="hidden lg:block">Create Job</span>
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M10.1663 7.95312H5.33301C5.0853 7.95312 4.87988 7.74771 4.87988 7.5C4.87988 7.25229 5.0853 7.04688 5.33301 7.04688H10.1663C10.414 7.04688 10.6195 7.25229 10.6195 7.5C10.6195 7.74771 10.414 7.95312 10.1663 7.95312Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M7.75 10.3685C7.50229 10.3685 7.29688 10.1631 7.29688 9.91536V5.08203C7.29688 4.83432 7.50229 4.62891 7.75 4.62891C7.99771 4.62891 8.20312 4.83432 8.20312 5.08203V9.91536C8.20312 10.1631 7.99771 10.3685 7.75 10.3685Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M9.56217 13.9935H5.93717C2.65655 13.9935 1.25488 12.5918 1.25488 9.3112V5.6862C1.25488 2.40557 2.65655 1.00391 5.93717 1.00391H9.56217C12.8428 1.00391 14.2445 2.40557 14.2445 5.6862V9.3112C14.2445 12.5918 12.8428 13.9935 9.56217 13.9935ZM5.93717 1.91016C3.15197 1.91016 2.16113 2.90099 2.16113 5.6862V9.3112C2.16113 12.0964 3.15197 13.0872 5.93717 13.0872H9.56217C12.3474 13.0872 13.3382 12.0964 13.3382 9.3112V5.6862C13.3382 2.90099 12.3474 1.91016 9.56217 1.91016H5.93717Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </Button>
+          </div>
+          <Button variant="ghost" className="text-black dark:text-white">
+            <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M9.99984 11.334C10.4601 11.334 10.8332 10.9609 10.8332 10.5007C10.8332 10.0404 10.4601 9.66732 9.99984 9.66732C9.5396 9.66732 9.1665 10.0404 9.1665 10.5007C9.1665 10.9609 9.5396 11.334 9.99984 11.334Z"
+                stroke="currentColor"
+                stroke-width="1.66667"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M9.99984 5.50065C10.4601 5.50065 10.8332 5.12755 10.8332 4.66732C10.8332 4.20708 10.4601 3.83398 9.99984 3.83398C9.5396 3.83398 9.1665 4.20708 9.1665 4.66732C9.1665 5.12755 9.5396 5.50065 9.99984 5.50065Z"
+                stroke="currentColor"
+                stroke-width="1.66667"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M9.99984 17.1673C10.4601 17.1673 10.8332 16.7942 10.8332 16.334C10.8332 15.8737 10.4601 15.5007 9.99984 15.5007C9.5396 15.5007 9.1665 15.8737 9.1665 16.334C9.1665 16.7942 9.5396 17.1673 9.99984 17.1673Z"
+                stroke="currentColor"
+                stroke-width="1.66667"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </Button>
+        </div>
       </div>
-      </div>
-      
       <UseTableTanStackSSR columns={columns} data={filteredData} />
 
       {/* Pagination */}
@@ -767,6 +819,41 @@ const TableJobs = (props: Props) => {
         rowsPerPage={pageSize}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+      {/* <div className="h-[88px] rounded-b-xl flex flex-row justify-between p-6">
+        <Button variant="outline">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12.8332 6.99984H1.1665M1.1665 6.99984L6.99984 12.8332M1.1665 6.99984L6.99984 1.1665"
+              stroke="currentColor"
+              stroke-width="1.67"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Preview
+        </Button>
+        <div className="flex flex-row gap-0.5">
+          <button className="w-10 h-10 rounded-lg text-blue-normal bg-blue-light">1</button>
+          <button className="w-10 h-10 rounded-lg text-black dark:text-white bg-transparent">2</button>
+          <button className="w-10 h-10 rounded-lg text-black dark:text-white bg-transparent">3</button>
+          <span className="text-black dark:text-white">&nbsp;...&nbsp;</span>
+          <button className="w-10 h-10 rounded-lg text-black dark:text-white bg-transparent">8</button>
+          <button className="w-10 h-10 rounded-lg text-black dark:text-white bg-transparent">9</button>
+          <button className="w-10 h-10 rounded-lg text-black dark:text-white bg-transparent">10</button>
+        </div>
+        <Button variant="outline">
+          Next
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M1.1665 6.99984H12.8332M12.8332 6.99984L6.99984 1.1665M12.8332 6.99984L6.99984 12.8332"
+              stroke="currentColor"
+              stroke-width="1.67"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </Button>
+      </div> */}
 
       {/* Modal delete */}
       <Transition appear show={isOpenModalDelete} as={React.Fragment}>
@@ -795,16 +882,11 @@ const TableJobs = (props: Props) => {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-center text-lg font-medium leading-6 text-gray-900"
-                  >
+                  <Dialog.Title as="h3" className="text-center text-lg font-medium leading-6 text-gray-900">
                     Notification
                   </Dialog.Title>
                   <div className="mt-4">
-                    <p className="text-sm text-gray-500">
-                      Are you sure you want to delete this job?
-                    </p>
+                    <p className="text-sm text-gray-500">Are you sure you want to delete this job?</p>
                   </div>
 
                   <div className="mt-8 text-end">
@@ -857,10 +939,7 @@ const TableJobs = (props: Props) => {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900 mb-4"
-                  >
+                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 mb-4">
                     PDF Output
                   </Dialog.Title>
                   <div className="w-full h-[500px] border">
@@ -869,42 +948,19 @@ const TableJobs = (props: Props) => {
                       <Document>
                         <Page size="A4" style={pdfStyles.page}>
                           {/* Job Name */}
-                          <Text style={pdfStyles.title}>
-                            {jobDetailQuery.data?.job_name || "Job"}
-                          </Text>
+                          <Text style={pdfStyles.title}>{jobDetailQuery.data?.job_name || "Job"}</Text>
 
                           {/* Sections */}
-                          <PDFSection
-                            title="Educations"
-                            items={jobDetailQuery.data?.degree || []}
-                          />
-                          <PDFSection
-                            title="Experiences"
-                            items={jobDetailQuery.data?.experience || []}
-                          />
-                          <PDFSection
-                            title="Responsibilities"
-                            items={jobDetailQuery.data?.responsibility || []}
-                          />
-                          <PDFSection
-                            title="Technical Skills"
-                            items={jobDetailQuery.data?.technical_skill || []}
-                          />
-                          <PDFSection
-                            title="Soft Skills"
-                            items={jobDetailQuery.data?.soft_skill || []}
-                          />
-                          <PDFSection
-                            title="Certificates"
-                            items={jobDetailQuery.data?.certificate || []}
-                          />
+                          <PDFSection title="Educations" items={jobDetailQuery.data?.degree || []} />
+                          <PDFSection title="Experiences" items={jobDetailQuery.data?.experience || []} />
+                          <PDFSection title="Responsibilities" items={jobDetailQuery.data?.responsibility || []} />
+                          <PDFSection title="Technical Skills" items={jobDetailQuery.data?.technical_skill || []} />
+                          <PDFSection title="Soft Skills" items={jobDetailQuery.data?.soft_skill || []} />
+                          <PDFSection title="Certificates" items={jobDetailQuery.data?.certificate || []} />
 
                           {/* Job Created Date */}
                           <Text style={pdfStyles.createdDate}>
-                            Job Created Date:{" "}
-                            {new Date(
-                              jobDetailQuery.data?.created_at
-                            ).toLocaleDateString()}
+                            Job Created Date: {new Date(jobDetailQuery.data?.created_at).toLocaleDateString()}
                           </Text>
                         </Page>
                       </Document>
@@ -950,9 +1006,7 @@ const TableJobs = (props: Props) => {
           <button onClick={() => handleDrawerClose()}>
             <IconArrowRight className="absolute left-2 top-1 h-8 w-8 hover:cursor-pointer rounded-full p-1 bg-blue-500 text-white hover:opacity-80" />
           </button>
-          <div className="text-base font-bold">
-            Detail Analyse Job Description
-          </div>
+          <div className="text-base font-bold">Detail Analyse Job Description</div>
         </div>
         <div className="w-[500px] text-sm">
           {fetching ? (
@@ -960,109 +1014,74 @@ const TableJobs = (props: Props) => {
           ) : (
             <>
               <div className="p-2">
-                <div className="text-base font-semibold leading-7 text-gray-900">
-                  Job Name
-                </div>
+                <div className="text-base font-semibold leading-7 text-gray-900">Job Name</div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {jobDetailQuery.data?.job_name
-                    ? jobDetailQuery.data?.job_name
-                    : "None"}
+                  {jobDetailQuery.data?.job_name ? jobDetailQuery.data?.job_name : "None"}
                 </p>
 
-                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">
-                  Educations
-                </div>
+                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">Educations</div>
                 <ul className="list-disc pl-6 text-sm leading-6 text-gray-600">
                   {(jobDetailQuery.data?.degree || []).length > 0 ? (
-                    jobDetailQuery.data?.degree.map((edu, index) => (
-                      <li key={index}>{edu}</li>
-                    ))
+                    jobDetailQuery.data?.degree.map((edu, index) => <li key={index}>{edu}</li>)
                   ) : (
                     <li>None</li>
                   )}
                 </ul>
 
-                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">
-                  Experiences
-                </div>
+                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">Experiences</div>
                 <ul className="list-disc pl-6 text-sm leading-6 text-gray-600">
                   {(jobDetailQuery.data?.experience || []).length > 0 ? (
-                    jobDetailQuery.data?.experience.map((edu, index) => (
-                      <li key={index}>{edu}</li>
-                    ))
+                    jobDetailQuery.data?.experience.map((edu, index) => <li key={index}>{edu}</li>)
                   ) : (
                     <li>None</li>
                   )}
                 </ul>
 
-                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">
-                  Responsibilities
-                </div>
+                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">Responsibilities</div>
                 <ul className="list-disc pl-6 text-sm leading-6 text-gray-600">
                   {(jobDetailQuery.data?.responsibility || []).length > 0 ? (
-                    jobDetailQuery.data?.responsibility.map((edu, index) => (
-                      <li key={index}>{edu}</li>
-                    ))
+                    jobDetailQuery.data?.responsibility.map((edu, index) => <li key={index}>{edu}</li>)
                   ) : (
                     <li>None</li>
                   )}
                 </ul>
 
-                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">
-                  Technical Skills
-                </div>
+                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">Technical Skills</div>
                 <div className="px-2 max-w-[500px]">
                   {(jobDetailQuery.data?.technical_skill || []).length > 0 ? (
                     <div className="flex flex-wrap">
-                      {jobDetailQuery.data?.technical_skill.map(
-                        (edu, index) => (
-                          <span
-                            className="rounded-full bg-blue-500 text-white px-2 py-1 m-1"
-                            key={index}
-                          >
-                            {edu.replace(/\s/g, "")}
-                          </span>
-                        )
-                      )}
+                      {jobDetailQuery.data?.technical_skill.map((edu, index) => (
+                        <span className="rounded-full bg-blue-500 text-white px-2 py-1 m-1" key={index}>
+                          {edu.replace(/\s/g, "")}
+                        </span>
+                      ))}
                     </div>
                   ) : (
                     <div>None</div>
                   )}
                 </div>
 
-                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">
-                  Soft Skills
-                </div>
+                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">Soft Skills</div>
                 <ul className="list-disc pl-6 text-sm leading-6 text-gray-600">
                   {(jobDetailQuery.data?.soft_skill || []).length > 0 ? (
-                    jobDetailQuery.data?.soft_skill.map((edu, index) => (
-                      <li key={index}>{edu}</li>
-                    ))
+                    jobDetailQuery.data?.soft_skill.map((edu, index) => <li key={index}>{edu}</li>)
                   ) : (
                     <li>None</li>
                   )}
                 </ul>
 
-                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">
-                  Certificates
-                </div>
+                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">Certificates</div>
                 <ul className="list-disc pl-6 text-sm leading-6 text-gray-600">
                   {(jobDetailQuery.data?.certificate || []).length > 0 ? (
-                    jobDetailQuery.data?.certificate.map((edu, index) => (
-                      <li key={index}>{edu}</li>
-                    ))
+                    jobDetailQuery.data?.certificate.map((edu, index) => <li key={index}>{edu}</li>)
                   ) : (
                     <li>None</li>
                   )}
                 </ul>
 
-                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">
-                  Job Created Date
-                </div>
+                <div className="mt-2 text-base font-semibold leading-7 text-gray-900">Job Created Date</div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {new Date(
-                    jobDetailQuery.data?.created_at
-                  ).toLocaleDateString()}
+                  {new Date(jobDetailQuery.data?.created_at).toLocaleDateString()}
                 </p>
               </div>
             </>
@@ -1097,16 +1116,10 @@ const TableJobs = (props: Props) => {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-center text-lg font-medium leading-6 text-gray-900"
-                  >
+                  <Dialog.Title as="h3" className="text-center text-lg font-medium leading-6 text-gray-900">
                     Create New Job
                   </Dialog.Title>
-                  <form
-                    className="w-full"
-                    onSubmit={handleSubmit(confirmAddFAQ)}
-                  >
+                  <form className="w-full" onSubmit={handleSubmit(confirmAddFAQ)}>
                     <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5 mt-8">
                       <div className="sm:col-span-2">
                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -1142,16 +1155,7 @@ const TableJobs = (props: Props) => {
                                   ["link", "image"],
                                 ],
                               }}
-                              formats={[
-                                "bold",
-                                "italic",
-                                "underline",
-                                "strike",
-                                "list",
-                                "bullet",
-                                "link",
-                                "image",
-                              ]}
+                              formats={["bold", "italic", "underline", "strike", "list", "bullet", "link", "image"]}
                             />
                           )}
                         />
@@ -1230,16 +1234,10 @@ const TableJobs = (props: Props) => {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-center text-lg font-medium leading-6 text-gray-900"
-                  >
+                  <Dialog.Title as="h3" className="text-center text-lg font-medium leading-6 text-gray-900">
                     Update Job
                   </Dialog.Title>
-                  <form
-                    className="w-full"
-                    onSubmit={handleSubmit2(confirmUpdateFAQ)}
-                  >
+                  <form className="w-full" onSubmit={handleSubmit2(confirmUpdateFAQ)}>
                     <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5 mt-8">
                       <div className="sm:col-span-2">
                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -1275,16 +1273,7 @@ const TableJobs = (props: Props) => {
                                   ["link", "image"],
                                 ],
                               }}
-                              formats={[
-                                "bold",
-                                "italic",
-                                "underline",
-                                "strike",
-                                "list",
-                                "bullet",
-                                "link",
-                                "image",
-                              ]}
+                              formats={["bold", "italic", "underline", "strike", "list", "bullet", "link", "image"]}
                             />
                           )}
                         />

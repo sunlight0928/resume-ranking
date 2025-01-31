@@ -21,15 +21,12 @@ const DashboardLayout = (props: PropsWithChildren) => {
       <NavbarDashboard toggleSidebar={toggleSidebar} />
 
       {/* Main dashboard layout */}
-      <div className="flex pt-14 lg:pt-[90px] overflow-hidden bg-gray-50 dark:bg-gray-900">
+      <div className="flex pt-14 lg:pt-[90px] overflow-hidden bg-gray-50 dark:bg-[#111111]">
         {/* Display the sidebar */}
         <SidebarDashboard open={sidebarOpen} toggleSidebar={toggleSidebar} />
 
         {/* Main content area */}
-        <div
-          id="main-content"
-          className={`relative w-full h-full overflow-y-auto bg-gray-50 p-6 lg:p-10 dark:bg-[#111111] lg:ml-64`}
-        >
+        <div id="main-content" className={`relative w-full h-full overflow-y-auto p-6 lg:p-10 lg:ml-64`}>
           <main>
             {props.children} {/* Render the children components */}
           </main>
