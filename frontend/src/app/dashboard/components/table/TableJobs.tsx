@@ -912,7 +912,7 @@ const TableJobs = (props: Props) => {
                   </div>
 
                   {/* Modal Footer Buttons */}
-                  <div className="flex justify-end gap-4 mt-6">
+                  {/* <div className="flex justify-end gap-4 mt-6">
                     <button
                       type="button"
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -936,7 +936,7 @@ const TableJobs = (props: Props) => {
                     >
                       Close
                     </button>
-                  </div>
+                  </div> */}
                 </Dialog.Panel>
               </Transition.Child>
             </div>
