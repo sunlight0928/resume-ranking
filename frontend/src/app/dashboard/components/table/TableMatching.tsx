@@ -4,7 +4,6 @@ import { IconArrowRight } from "@tabler/icons-react";
 import { createColumnHelper, Row } from "@tanstack/react-table";
 import { TablePagination, Drawer } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { FaRegFilePdf } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import UseTableTanStackSSR from "@/app/hooks/react-table/useTableTanStackSSR";
 import { Menu, Dialog, Transition } from "@headlessui/react";
@@ -22,6 +21,9 @@ import { useMatchingDetailData } from "@/app/hooks/react-query/management/file/u
 
 import { BsChevronDown } from "react-icons/bs";
 import { MdLightbulbOutline, MdLightbulb } from "react-icons/md";
+import { PDFViewer, Document, Page, Text, View, StyleSheet,Image } from "@react-pdf/renderer";
+import { FaDownload, FaPrint, FaSearch } from "react-icons/fa";
+import { jsPDF } from "jspdf";
 
 function classNames(...classes: (string | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -45,6 +47,66 @@ interface DataFormModel {
   job_description: string;
 }
 
+const pdfStyles = StyleSheet.create({
+  page: {
+    padding: 40,
+    paddingTop: 10,
+    fontSize: 12,
+    fontFamily: "Helvetica",
+  },
+  title: {
+    fontSize: 20,
+    textAlign: "center",
+    color: "#5443B6", // Blue color for the title
+    marginBottom: 20,
+    fontWeight: "bold"
+  },
+  sectionTitle: {
+    fontSize: 14,
+    color: "#5443B6", // Blue color for section titles
+    marginBottom: 10,
+    marginTop: 20,
+  },
+  bulletPoint: {
+    flexDirection: "row",
+    marginBottom: 6,
+  },
+  bulletText: {
+    fontSize: 12,
+    marginLeft: 5,
+    flex: 1,
+  },
+  bulletSymbol: {
+    fontSize: 12,
+    marginRight: 5,
+  },
+  createdDate: {
+    fontSize: 12,
+    marginTop: 20,
+    textAlign: "right",
+  },
+});
+
+// Component to render a section with bullets
+const PDFSection = ({ title, items }: { title: string; items: string[] }) => (
+  <View>
+    {/* Section Title */}
+    <Text style={pdfStyles.sectionTitle}>{title}</Text>
+
+    {/* List Items */}
+    {items.length > 0 ? (
+      items.map((item, index) => (
+        <View style={pdfStyles.bulletPoint} key={index}>
+          <Text style={pdfStyles.bulletSymbol}>•</Text>
+          <Text style={pdfStyles.bulletText}>{item}</Text>
+        </View>
+      ))
+    ) : (
+      <Text style={pdfStyles.bulletText}>None</Text>
+    )}
+  </View>
+);
+
 const TableFAQ = (props: Props) => {
   const [currentPage, setCurrentPage] = React.useState<number>(0);
   const [pageSize, setPageSize] = React.useState<number>(10);
@@ -67,7 +129,7 @@ const TableFAQ = (props: Props) => {
     selectedJobId
   );
   const [loadingMatching, setLoadingMatching] = React.useState<boolean>(false);
-
+  const [isOutputModalOpen, setIsOutputModalOpen] = React.useState<boolean>(false);
   const [dataForm, setDataForm] = React.useState<DataFormModel>({
     job_name: "",
     job_description: "",
@@ -87,32 +149,6 @@ const TableFAQ = (props: Props) => {
   const { mutate: processMatching } = useMachingData(selectedJobName);
   const { data, isLoading, isError, isPreviousData, refetch } =
     useMatchingPageData(selectedJobName, currentPage + 1, pageSize);
-
-  // Create a function to periodically refetch data
-  // const startAutoRefresh = () => {
-  //   const interval = 1000; // 3 seconds in milliseconds
-
-  //   const refreshData = () => {
-  //     refetch();
-  //   };
-
-  //   const refreshInterval = setInterval(refreshData, interval);
-
-  //   // Return a function to clear the interval when needed
-  //   return () => {
-  //     clearInterval(refreshInterval);
-  //   };
-  // };
-
-  // Call startAutoRefresh when the component mounts
-  // useEffect(() => {
-  //   const stopAutoRefresh = startAutoRefresh();
-
-  //   // Return a cleanup function to clear the interval when the component unmounts
-  //   return () => {
-  //     stopAutoRefresh();
-  //   };
-  // }, []); // The empty dependency array ensures this effect runs only once when the component mounts
 
   // Handle item selection
   const handleMenuItemClick = async (jobId: string, jobName: string) => {
@@ -144,19 +180,22 @@ const TableFAQ = (props: Props) => {
   };
 
   const handleDetail = async (candidateId: string, jobId: string, candidateName: string, candidatePhone: string, email: string) => {
-    await setCandidateId(candidateId);
-    await setSelectedJobId(jobId);
-    await SetDetailCandidateName(candidateName);
-    await SetDetailCandidatePhone(candidatePhone);
-    await SetDetailCandidateEmail(email);
+    if (selectedJobName != "Position Name")
+    {
+      await setCandidateId(candidateId);
+      await setSelectedJobId(jobId);
+      await SetDetailCandidateName(candidateName);
+      await SetDetailCandidatePhone(candidatePhone);
+      await SetDetailCandidateEmail(email);
 
-    await candidateDetailQuery.refetch();
+      await candidateDetailQuery.refetch();
 
-    if (candidateDetailQuery.isLoading) {
-      setIsFetching(true);
+      if (candidateDetailQuery.isLoading) {
+        setIsFetching(true);
+      }
+      setIsFetching(false);
+      setIsOpenDrawer(true);
     }
-    setIsFetching(false);
-    setIsOpenDrawer(true);
   };
 
   // const columnHelper = createColumnHelper<FAQModel>();
@@ -189,32 +228,35 @@ const TableFAQ = (props: Props) => {
       },
     }),
     columnHelper.accessor("comment", {
-      header: "Comment",
+      header: "Phone Number",
+      // cell: ({ row }: { row: Row<any> }) => {
+      //   const [showFullContent, setShowFullContent] = React.useState(false);
+      //   if (!row.original.summary_comment) {
+      //     return null;
+      //   }
+      //   const content = showFullContent
+      //     ? row.original.summary_comment
+      //     : row.original.summary_comment.slice(0, 200);
+      //   return (
+      //     <>
+      //       <div
+      //         className="whitespace-pre-line text-left"
+      //         id="answer"
+      //         dangerouslySetInnerHTML={{ __html: content }}
+      //       />
+      //       {row.original.summary_comment.length > 200 && (
+      //         <button
+      //           className="text-blue-500 hover:underline focus:outline-none"
+      //           onClick={() => setShowFullContent(!showFullContent)}
+      //         >
+      //           {showFullContent ? "Show less" : "Show more"}
+      //         </button>
+      //       )}
+      //     </>
+      //   );
+      // },
       cell: ({ row }: { row: Row<any> }) => {
-        const [showFullContent, setShowFullContent] = React.useState(false);
-        if (!row.original.summary_comment) {
-          return null;
-        }
-        const content = showFullContent
-          ? row.original.summary_comment
-          : row.original.summary_comment.slice(0, 200);
-        return (
-          <>
-            <div
-              className="whitespace-pre-line text-left"
-              id="answer"
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
-            {row.original.summary_comment.length > 200 && (
-              <button
-                className="text-blue-500 hover:underline focus:outline-none"
-                onClick={() => setShowFullContent(!showFullContent)}
-              >
-                {showFullContent ? "Show less" : "Show more"}
-              </button>
-            )}
-          </>
-        );
+        return <>{row.original.candidate_phone}</>;
       },
     }),
 
@@ -294,6 +336,13 @@ const TableFAQ = (props: Props) => {
               onClick={() => handleDetail(row.original.id, selectedJobId, row.original.candidate_name, row.original.candidate_phone, row.original.candidate_email)}
             >
               Detail
+            </button>
+            <button
+              className="p-2 mx-2 rounded-lg text-xs font-medium text-center text-white bg-yellow-500 hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+              value={row.original.id}
+              onClick={() => handleOutput(row.original.id, selectedJobId, row.original.candidate_name, row.original.candidate_phone, row.original.candidate_email)}
+            >
+              Output
             </button>            
             {/* <FaRegFilePdf className="dark:text-white w-6 h-6 mr-2" /> */}
           </>
@@ -486,6 +535,295 @@ const TableFAQ = (props: Props) => {
       textColor = "text-green-500"; // Highest score is green
       break;
   }
+
+  const handleOutput = async (candidateId: string, jobId: string, candidateName: string, candidatePhone: string, email: string) => {
+    if (selectedJobName != "Position Name")
+      {
+        await setCandidateId(candidateId);
+        await setSelectedJobId(jobId);
+        await SetDetailCandidateName(candidateName);
+        await SetDetailCandidatePhone(candidatePhone);
+        await SetDetailCandidateEmail(email);
+  
+        await candidateDetailQuery.refetch();
+        if (candidateDetailQuery.isLoading) {
+          setIsFetching(true);
+        }
+        setIsFetching(false);
+        setIsOutputModalOpen(true);
+      }
+  };
+
+  // Function to close the modal
+  const closeOutputModal = () => {
+    setIsOutputModalOpen(false);
+  };
+
+  // Function to handle PDF printing
+  const handlePrintPDF = () => {
+    if (!candidateDetailQuery.data) {
+      toast.error("Resume evaluation details are not loaded yet.");
+      return;
+    }
+  
+    const doc = new jsPDF(); // Create a new jsPDF instance
+  
+    // Extract job details from `jobDetailQuery.data`
+    const title = `Candidate ${detailCandidateName || "Candidate"}'s resume evaluation data for job posting '${candidateDetailQuery.data?.job_name || "Job"}'`;
+    const candidateName = detailCandidateName || "Candidate";
+    const candidatemail = detailCandidateEmail || " ";
+    const candidatephone = detailCandidatePhone || " ";
+    const jobName = candidateDetailQuery.data.job_name || "Job";
+    const matchingScore = candidateDetailQuery.data.score || "0%";
+    const summary = candidateDetailQuery.data.summary_comment || "None";
+    const job_recommended = candidateDetailQuery.data.job_recommended || [];
+    const educations = candidateDetailQuery.data.degree || [];
+    const experiences = candidateDetailQuery.data.experience || [];
+    const responsibilities = candidateDetailQuery.data.responsibility || [];
+    const technicalSkills = candidateDetailQuery.data.technical_skill || [];
+    const softSkills = candidateDetailQuery.data.soft_skill || [];
+    const certificates = candidateDetailQuery.data.certificate || [];
+  
+    const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
+    const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
+  
+    // Set job name title in blue, centered, and with a 30px gap from the top
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
+    doc.text(title, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
+  
+    // Reset font styles for the rest of the content
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+  
+    const bottomPadding = 10; // Padding at the bottom of the page
+    const usablePageHeight = pageHeight - bottomPadding; // Usable height for content
+
+    // Helper function to add text with proper line wrapping and page handling
+    const addWrappedTextWithBullet = (
+      docInstance: any,
+      text: string | string[],
+      x: number,
+      y: number,
+      maxWidth: number,
+      lineHeight: number
+    ): number => {
+      const bullet = "• "; // Define the bullet point
+      const lines = Array.isArray(text) ? text : docInstance.splitTextToSize(text, maxWidth - 10); // Adjust maxWidth for the bullet
+      let currentY = y;
+      lines.forEach((line: string, index: number) => {
+        if (currentY + lineHeight > usablePageHeight) {
+          docInstance.addPage(); // Add a new page when text exceeds the page height
+          currentY = 20; // Reset `y` position on the new page
+        }
+        const prefix = index === 0 ? bullet : "   "; // Add bullet for the first line, and indent wrapped lines
+        docInstance.text(prefix + line, x, currentY); // Add the bullet before the text
+        currentY += lineHeight; // Increment `y` position for the next line
+      });
+      return currentY; // Return the updated `y` position
+    };
+  
+    // Add sections with data
+    const addSection = (title: string, items: string[], yOffset: number): number => {
+      if (items.length > 0) {
+        // Check if there's enough space for the section title
+        if (yOffset + 10 > usablePageHeight) { // 10 is for the title's height
+          doc.addPage();
+          yOffset = 20; // Reset yOffset on the new page
+        }
+    
+        // Add section title in blue
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14); // Slightly larger font for titles
+        doc.setTextColor(0, 0, 255); // Set text color to blue
+        doc.text(title, 10, yOffset + 4); // Add section title
+        yOffset += 10; // Adjust yOffset for section content
+    
+        // Add the list items in normal font and black color
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0); // Reset text color to black
+        items.forEach((item) => {
+          yOffset = addWrappedTextWithBullet(doc, item, 15, yOffset, pageWidth - 30, 6); // Add wrapped text with bullet for each item
+        });
+    
+        yOffset += 4; // Add extra space after the section
+      }
+      return yOffset;
+    };
+  
+    const educationStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
+    const experienceStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
+    const responsibilitieStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
+    const technicalSkillStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
+    const softSkillStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
+    const certificateStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
+
+    let yOffset = 40; // Start content below the candidate name
+    yOffset = addSection("Candidate Name", [candidateName], yOffset);
+    yOffset = addSection("Candidate Email", [candidatemail], yOffset);
+    yOffset = addSection("Candidate Phone Number", [candidatephone], yOffset);
+    yOffset = addSection("Job Name", [jobName], yOffset);
+    yOffset = addSection("Matching Score", [matchingScore], yOffset);
+    yOffset = addSection("Summary Analyse Candidate", [summary], yOffset);
+    yOffset = addSection("Analyse Educations", educationStrings, yOffset);
+    yOffset = addSection("Experiences", experienceStrings, yOffset);
+    yOffset = addSection("Responsibilities", responsibilitieStrings, yOffset);
+    yOffset = addSection("Technical Skills", technicalSkillStrings, yOffset);
+    yOffset = addSection("Soft Skills", softSkillStrings, yOffset);
+    yOffset = addSection("Certificates", certificateStrings, yOffset);
+  
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 255); // Blue color for the title
+    if (yOffset + 10 > usablePageHeight) { // Check if there's space for the title
+      doc.addPage();
+      yOffset = 20; // Reset yOffset on the new page
+    }
+    doc.text("Candidate Created Date", 10, yOffset + 4);
+    yOffset += 10; // Adjust yOffset for the content
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0); // Black color for the content
+    // yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
+  
+    // Output the PDF as a blob for printing
+    const pdfBlob = doc.output("blob"); // Get the PDF as a blob object
+  
+    // Create a new window and print the PDF
+    const pdfURL = URL.createObjectURL(pdfBlob);
+    const printWindow = window.open(pdfURL, "_blank");
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.print(); // Trigger the print dialog
+      };
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    // if (!candidateDetailQuery.data) {
+    //   toast.error("Candidate details are not loaded yet.");
+    //   return;
+    // }
+  
+    // const doc = new jsPDF(); // Create a new jsPDF instance
+  
+    // // Extract job details from `jobDetailQuery.data`
+    // const candidateName = candidateDetailQuery.data.candidate_name || "Candidate";
+    // const candidatemail = candidateDetailQuery.data.email || " ";
+    // const candidatephone = candidateDetailQuery.data.phone_number || " ";
+    // const summary = candidateDetailQuery.data.comment || " ";
+    // const job_recommended = candidateDetailQuery.data.job_recommended || [];
+    // const educations = candidateDetailQuery.data.degree || [];
+    // const experiences = candidateDetailQuery.data.experience || [];
+    // const responsibilities = candidateDetailQuery.data.responsibility || [];
+    // const technicalSkills = candidateDetailQuery.data.technical_skill || [];
+    // const softSkills = candidateDetailQuery.data.soft_skill || [];
+    // const certificates = candidateDetailQuery.data.certificate || [];
+    // const cv_name = candidateDetailQuery.data.cv_name || " ";
+    // const createdAt = `Candidate Created Date: ${new Date(candidateDetailQuery.data.created_at).toLocaleDateString()}`;
+
+    // const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
+    // const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
+  
+    // // Set job name title in blue, centered, and with a 30px gap from the top
+    // doc.setFont("helvetica", "bold");
+    // doc.setFontSize(20);
+    // doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
+    // doc.text(candidateName, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
+  
+    // // Reset font styles for the rest of the content
+    // doc.setFontSize(12);
+    // doc.setFont("helvetica", "normal");
+  
+    // const bottomPadding = 10; // Padding at the bottom of the page
+    // const usablePageHeight = pageHeight - bottomPadding; // Usable height for content
+
+    // // Helper function to add text with proper line wrapping and page handling
+    // const addWrappedTextWithBullet = (
+    //   docInstance: any,
+    //   text: string | string[],
+    //   x: number,
+    //   y: number,
+    //   maxWidth: number,
+    //   lineHeight: number
+    // ): number => {
+    //   const bullet = "• "; // Define the bullet point
+    //   const lines = Array.isArray(text) ? text : docInstance.splitTextToSize(text, maxWidth - 10); // Adjust maxWidth for the bullet
+    //   let currentY = y;
+    //   lines.forEach((line: string, index: number) => {
+    //     if (currentY + lineHeight > usablePageHeight) {
+    //       docInstance.addPage(); // Add a new page when text exceeds the page height
+    //       currentY = 20; // Reset `y` position on the new page
+    //     }
+    //     const prefix = index === 0 ? bullet : "   "; // Add bullet for the first line, and indent wrapped lines
+    //     docInstance.text(prefix + line, x, currentY); // Add the bullet before the text
+    //     currentY += lineHeight; // Increment `y` position for the next line
+    //   });
+    //   return currentY; // Return the updated `y` position
+    // };
+
+    // // Add sections with data
+    // const addSection = (title: string, items: string[], yOffset: number): number => {
+    //   if (items.length > 0) {
+    //     // Check if there's enough space for the section title
+    //     if (yOffset + 10 > usablePageHeight) { // 10 is for the title's height
+    //       doc.addPage();
+    //       yOffset = 20; // Reset yOffset on the new page
+    //     }
+    
+    //     // Add section title in blue
+    //     doc.setFont("helvetica", "bold");
+    //     doc.setFontSize(14); // Slightly larger font for titles
+    //     doc.setTextColor(0, 0, 255); // Set text color to blue
+    //     doc.text(title, 10, yOffset + 4); // Add section title
+    //     yOffset += 10; // Adjust yOffset for section content
+    
+    //     // Add the list items in normal font and black color
+    //     doc.setFont("helvetica", "normal");
+    //     doc.setFontSize(12);
+    //     doc.setTextColor(0, 0, 0); // Reset text color to black
+    //     items.forEach((item) => {
+    //       yOffset = addWrappedTextWithBullet(doc, item, 15, yOffset, pageWidth - 30, 6); // Add wrapped text with bullet for each item
+    //     });
+    
+    //     yOffset += 4; // Add extra space after the section
+    //   }
+    //   return yOffset;
+    // };
+  
+    // let yOffset = 40; // Start content below the candidate name
+    // yOffset = addSection("Candidate Email Address", [candidatemail], yOffset);
+    // yOffset = addSection("Candidate Phone Number", [candidatephone], yOffset);
+    // yOffset = addSection("Candidate Summary", [summary], yOffset);
+    // yOffset = addSection("Recommended Jobs", job_recommended, yOffset);
+    // yOffset = addSection("Educations", educations, yOffset);
+    // yOffset = addSection("Experiences", experiences, yOffset);
+    // yOffset = addSection("Responsibilities", responsibilities, yOffset);
+    // yOffset = addSection("Technical Skills", technicalSkills, yOffset);
+    // yOffset = addSection("Soft Skills", softSkills, yOffset);
+    // yOffset = addSection("Certificates", certificates, yOffset);
+    // yOffset = addSection("Candidate CV Name", [cv_name], yOffset);
+  
+    // doc.setFont("helvetica", "bold");
+    // doc.setFontSize(14);
+    // doc.setTextColor(0, 0, 255); // Blue color for the title
+    // if (yOffset + 10 > usablePageHeight) { // Check if there's space for the title
+    //   doc.addPage();
+    //   yOffset = 20; // Reset yOffset on the new page
+    // }
+    // doc.text("Candidate Created Date", 10, yOffset + 4);
+    // yOffset += 10; // Adjust yOffset for the content
+    // doc.setFont("helvetica", "normal");
+    // doc.setFontSize(12);
+    // doc.setTextColor(0, 0, 0); // Black color for the content
+    // yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
+  
+    // // Dynamically set the file name using the `jobName`
+    // const fileName = `${candidateName}.pdf`;
+    // doc.save(fileName);
+  };
 
   return (
     <>
@@ -981,6 +1319,172 @@ const TableFAQ = (props: Props) => {
                   >
                     Update Job
                   </Dialog.Title>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      
+      {/* Output Modal */}
+      <Transition appear show={isOutputModalOpen} as={React.Fragment}>
+        <Dialog as="div" className="relative z-20" onClose={closeOutputModal}>
+          <Transition.Child
+            as={React.Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={React.Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900 mb-4"
+                  >
+                    PDF Output
+                  </Dialog.Title>
+                  <div className="w-full h-[500px] border">
+                    {/* PDF Preview */}
+                    <PDFViewer className="w-full h-full">
+                      <Document>
+                        <Page size="A4" style={pdfStyles.page}>
+                          <Image 
+                            src="/pdf-maker.png" // Replace with the actual path or URL to your image
+                            style={{
+                              width: 140, // Adjust the width as needed
+                              height: 100, // Adjust the height as needed
+                              alignSelf: 'center'
+                            }}
+                          />
+                          {/* Candidate Name */}
+                          <Text style={pdfStyles.title}>
+                            Candidate {detailCandidateName || "Candidate"}'s resume evaluation details for job posting "{candidateDetailQuery.data?.job_name || "Job"}"
+                          </Text>
+
+                          {/* Sections */}
+                          <PDFSection
+                            title="Candidate Name"
+                            items={[detailCandidateName
+                              ? detailCandidateName
+                              : "None"]}
+                          />
+                          <PDFSection
+                            title="Candidate Email"
+                            items={[detailCandidateEmail
+                              ? detailCandidateEmail
+                              : "None"]}
+                          />
+                          <PDFSection
+                            title="Candidate Phone Number"
+                            items={[detailCandidatePhone
+                              ? detailCandidatePhone
+                              : "None"]}
+                          />
+                          <PDFSection
+                            title="Job Name"
+                            items={[candidateDetailQuery.data?.job_name || "None"]}
+                          />
+                          <PDFSection
+                            title="Matching Score"
+                            items={[
+                              candidateDetailQuery.data?.score !== undefined 
+                                ? `${candidateDetailQuery.data.score}%` 
+                                : "0"
+                            ]}
+                          />
+                          <PDFSection
+                            title="Summary Analyse Candidate"
+                            items={[candidateDetailQuery.data?.summary_comment || "None"]}
+                          />
+                          <PDFSection
+                            title="Analyse Educations"
+                            items={[
+                              `Comment: ${candidateDetailQuery.data?.degree?.comment || "None"}`,
+                              `Score: ${candidateDetailQuery.data?.degree?.score || "0"}`
+                            ]}
+                          />
+                          <PDFSection
+                            title="Experiences"
+                            items={[
+                              `Comment: ${candidateDetailQuery.data?.experience?.comment || "None"}`,
+                              `Score: ${candidateDetailQuery.data?.experience?.score || "0"}`
+                            ]}
+                          />
+                          <PDFSection
+                            title="Responsibilities"
+                            items={[
+                              `Comment: ${candidateDetailQuery.data?.responsibility?.comment || "None"}`,
+                              `Score: ${candidateDetailQuery.data?.responsibility?.score || "0"}`
+                            ]}
+                          />
+                          <PDFSection
+                            title="Technical Skills"
+                            items={[
+                              `Comment: ${candidateDetailQuery.data?.technical_skill?.comment || "None"}`,
+                              `Score: ${candidateDetailQuery.data?.technical_skill?.score || "0"}`
+                            ]}
+                          />
+                          <PDFSection
+                            title="Soft Skills"
+                            items={[
+                              `Comment: ${candidateDetailQuery.data?.soft_skill?.comment || "None"}`,
+                              `Score: ${candidateDetailQuery.data?.soft_skill?.score || "0"}`
+                            ]}
+                          />
+                          <PDFSection
+                            title="Certificates"
+                            items={[
+                              `Comment: ${candidateDetailQuery.data?.certificate?.comment || "None"}`,
+                              `Score: ${candidateDetailQuery.data?.certificate?.score || "0"}`
+                            ]}
+                          />
+                        </Page>
+                      </Document>
+                    </PDFViewer>
+                  </div>
+
+                  {/* Modal Footer Buttons */}
+                  {/* <div className="flex justify-end gap-4 mt-6">
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      onClick={handlePrintPDF}
+                    >
+                      <FaPrint />
+                      Print
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                      // onClick={handleDownloadPDF}
+                    >
+                      <FaDownload />
+                      Download
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex px-4 py-2 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      onClick={closeOutputModal}
+                    >
+                      Close
+                    </button>
+                  </div> */}
                 </Dialog.Panel>
               </Transition.Child>
             </div>

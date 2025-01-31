@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Dialog, Transition } from "@headlessui/react";
 import { jsPDF } from "jspdf";
-import { PDFViewer, Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { PDFViewer, Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import { FaDownload, FaPrint, FaSearch } from "react-icons/fa";
 import { TablePagination, Drawer, Skeleton } from "@mui/material";
 import { IconArrowRight } from "@tabler/icons-react";
@@ -51,18 +51,20 @@ interface DataFormModel {
 const pdfStyles = StyleSheet.create({
   page: {
     padding: 40,
+    paddingTop: 10,
     fontSize: 12,
     fontFamily: "Helvetica",
   },
   title: {
     fontSize: 20,
     textAlign: "center",
-    color: "#0000FF", // Blue color for the title
-    marginBottom: 30,
+    color: "#5443B6", // Blue color for the title
+    marginBottom: 20,
+    fontWeight: "bold"
   },
   sectionTitle: {
     fontSize: 14,
-    color: "#0000FF", // Blue color for section titles
+    color: "#5443B6", // Blue color for section titles
     marginBottom: 10,
     marginTop: 20,
   },
@@ -947,6 +949,14 @@ const TableJobs = (props: Props) => {
                     <PDFViewer className="w-full h-full">
                       <Document>
                         <Page size="A4" style={pdfStyles.page}>
+                          <Image 
+                            src="/pdf-maker.png" // Replace with the actual path or URL to your image
+                            style={{
+                              width: 140, // Adjust the width as needed
+                              height: 100, // Adjust the height as needed
+                              alignSelf: 'center'
+                            }}
+                          />
                           {/* Job Name */}
                           <Text style={pdfStyles.title}>{jobDetailQuery.data?.job_name || "Job"}</Text>
 
@@ -968,7 +978,7 @@ const TableJobs = (props: Props) => {
                   </div>
 
                   {/* Modal Footer Buttons */}
-                  <div className="flex justify-end gap-4 mt-6">
+                  {/* <div className="flex justify-end gap-4 mt-6">
                     <button
                       type="button"
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -992,7 +1002,7 @@ const TableJobs = (props: Props) => {
                     >
                       Close
                     </button>
-                  </div>
+                  </div> */}
                 </Dialog.Panel>
               </Transition.Child>
             </div>

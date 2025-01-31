@@ -1,7 +1,9 @@
 import React from "react";
 import HeadMain from "@/app/components/HeadMain"; // Import the HeadMain component
 import BreadcrumbDashboard from "../components/layouts/BreadcrumbDashboard"; // Import the BreadcrumbDashboard component
-import TableMatching from "../components/table/TableMatching"; // Import the TableMatching component
+import dynamic from "next/dynamic";
+
+const TableMatching = dynamic(() => import("../components/table/TableMatching"), { ssr: false });
 
 type Props = {};
 
