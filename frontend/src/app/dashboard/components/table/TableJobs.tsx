@@ -12,6 +12,8 @@ import { createColumnHelper, Row } from "@tanstack/react-table";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-quill/dist/quill.snow.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 // Dynamically import ReactQuill (client-side only)
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
@@ -110,6 +112,8 @@ const PDFSection = ({ title, items }: { title: string; items: string[] }) => (
 
 const TableJobs = (props: Props) => {
   const [jobId, setJobId] = React.useState<string>("id");
+  const [isOpenModalView, setIsOpenModalView] = React.useState<boolean>(false); // Modal for "Show More"
+  const [currentJobDescription, setCurrentJobDescription] = React.useState<string>(""); // Holds the current job description
   const jobDetailQuery = useJobDetailData(jobId);
   const [isOpenDrawer, setIsOpenDrawer] = React.useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -130,11 +134,37 @@ const TableJobs = (props: Props) => {
   const ReactQuill = useMemo(() => dynamic(() => import("react-quill"), { ssr: false }), []);
 
   const { data, isLoading, isError, isPreviousData, refetch } = useFAQData(currentPage + 1, pageSize);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]); // [startDate, endDate]
+  const [startDate, endDate] = dateRange;
 
+  const handleDateChange = (dates: [Date | null, Date | null]) => {
+    setDateRange(dates);
+  };
+
+  const onApplyFilter = () => {
+    console.log("Selected Start Date:", startDate);
+    console.log("Selected End Date:", endDate);
+  
+    // Close the date picker popover
+    setIsDatePickerOpen(false);
+  };
   const filteredData = useMemo(() => {
     if (!data?.results) return [];
-    return data.results.filter((job) => job.job_name.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [data, searchTerm]);
+  
+    return data.results.filter((job) => {
+      // Check if the job name includes the search term
+      const matchesSearchTerm = job.job_name.toLowerCase().includes(searchTerm.toLowerCase());
+  
+      // Check if the job's created_at date is within the selected date range
+      const jobDate = new Date(job.created_at);
+      const matchesDateRange =
+        (!startDate || jobDate >= startDate) && (!endDate || jobDate <= endDate);
+  
+      // Return true only if both conditions are met
+      return matchesSearchTerm && matchesDateRange;
+    });
+  }, [data, searchTerm, startDate, endDate]);
 
   const {
     data: detailFAQData,
@@ -220,20 +250,26 @@ const TableJobs = (props: Props) => {
     columnHelper.accessor("job_description", {
       header: "Job Description",
       cell: ({ row }: { row: Row<any> }) => {
-        const [showFullContent, setShowFullContent] = React.useState(false);
         if (!row.original.job_description) {
           return null;
         }
-        const content = showFullContent ? row.original.job_description : row.original.job_description.slice(0, 200);
+        const shortDescription = row.original.job_description.slice(0, 200); // Truncated description
         return (
           <>
-            <div className="whitespace-pre-line text-left" id="answer" dangerouslySetInnerHTML={{ __html: content }} />
+            <div
+              className="whitespace-pre-line text-left"
+              id="answer"
+              dangerouslySetInnerHTML={{ __html: shortDescription }}
+            />
             {row.original.job_description.length > 200 && (
               <button
                 className="text-blue-500 hover:underline focus:outline-none"
-                onClick={() => setShowFullContent(!showFullContent)}
+                onClick={() => {
+                  setCurrentJobDescription(row.original.job_description); // Set the full job description
+                  setIsOpenModalView(true); // Open the modal
+                }}
               >
-                {showFullContent ? "Show less" : "Show more"}
+                Show more
               </button>
             )}
           </>
@@ -278,6 +314,11 @@ const TableJobs = (props: Props) => {
       },
     }),
   ];
+
+  const closeViewModal = () => {
+    setIsOpenModalView(false);
+    setCurrentJobDescription(""); // Reset the job description
+  };
 
   if (isLoading) {
     return (
@@ -752,17 +793,52 @@ const TableJobs = (props: Props) => {
         </div>
         <div className="flex gap-0.5 w-fit">
           <div className="flex-row gap-4 hidden sm:flex">
-            <Button variant="outline" color="normal">
-              <span className="hidden lg:block">Date filter</span>
-              <svg width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M11.6616 0.333984C12.0066 0.333984 12.2866 0.613984 12.2866 0.958984L12.287 1.66549C13.5037 1.74891 14.5143 2.16569 15.2295 2.8824C16.0103 3.66657 16.4212 4.79407 16.417 6.14657V13.7491C16.417 16.5257 14.6537 18.2507 11.8162 18.2507H4.76783C1.93033 18.2507 0.166992 16.5016 0.166992 13.6857V6.1449C0.166992 3.52589 1.73954 1.84477 4.30423 1.66578L4.30474 0.958984C4.30474 0.613984 4.58474 0.333984 4.92974 0.333984C5.27474 0.333984 5.55474 0.613984 5.55474 0.958984L5.55449 1.64982H11.0362L11.0366 0.958984C11.0366 0.613984 11.3166 0.333984 11.6616 0.333984ZM15.167 7.75398H1.41699V13.6857C1.41699 15.8241 2.60699 17.0007 4.76783 17.0007H11.8162C13.977 17.0007 15.167 15.8457 15.167 13.7491L15.167 7.75398ZM12.0013 12.9976C12.3463 12.9976 12.6263 13.2776 12.6263 13.6226C12.6263 13.9676 12.3463 14.2476 12.0013 14.2476C11.6563 14.2476 11.373 13.9676 11.373 13.6226C11.373 13.2776 11.6488 12.9976 11.9938 12.9976H12.0013ZM8.30341 12.9976C8.64841 12.9976 8.92841 13.2776 8.92841 13.6226C8.92841 13.9676 8.64841 14.2476 8.30341 14.2476C7.95841 14.2476 7.67508 13.9676 7.67508 13.6226C7.67508 13.2776 7.95091 12.9976 8.29591 12.9976H8.30341ZM4.59774 12.9976C4.94274 12.9976 5.22274 13.2776 5.22274 13.6226C5.22274 13.9676 4.94274 14.2476 4.59774 14.2476C4.25274 14.2476 3.96858 13.9676 3.96858 13.6226C3.96858 13.2776 4.24524 12.9976 4.59024 12.9976H4.59774ZM12.0013 9.75865C12.3463 9.75865 12.6263 10.0387 12.6263 10.3837C12.6263 10.7287 12.3463 11.0087 12.0013 11.0087C11.6563 11.0087 11.373 10.7287 11.373 10.3837C11.373 10.0387 11.6488 9.75865 11.9938 9.75865H12.0013ZM8.30341 9.75865C8.64841 9.75865 8.92841 10.0387 8.92841 10.3837C8.92841 10.7287 8.64841 11.0087 8.30341 11.0087C7.95841 11.0087 7.67508 10.7287 7.67508 10.3837C7.67508 10.0387 7.95091 9.75865 8.29591 9.75865H8.30341ZM4.59774 9.75865C4.94274 9.75865 5.22274 10.0387 5.22274 10.3837C5.22274 10.7287 4.94274 11.0087 4.59774 11.0087C4.25274 11.0087 3.96858 10.7287 3.96858 10.3837C3.96858 10.0387 4.24524 9.75865 4.59024 9.75865H4.59774ZM11.0362 2.89982H5.55449L5.55474 3.70148C5.55474 4.04648 5.27474 4.32648 4.92974 4.32648C4.58474 4.32648 4.30474 4.04648 4.30474 3.70148L4.3043 2.91874C2.43744 3.07556 1.41699 4.2072 1.41699 6.1449V6.50398H15.167L15.167 6.1449C15.1703 5.11573 14.8937 4.31573 14.3445 3.76573C13.8624 3.28224 13.1577 2.99349 12.2873 2.91914L12.2866 3.70148C12.2866 4.04648 12.0066 4.32648 11.6616 4.32648C11.3166 4.32648 11.0366 4.04648 11.0366 3.70148L11.0362 2.89982Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </Button>
+            <div className="relative inline-block">
+              {/* Date Filter Button */}
+              <Button
+                variant="outline"
+                color="normal"
+                onClick={() => setIsDatePickerOpen((prev) => !prev)} // Toggle the date picker
+              >
+                <span className="hidden lg:block">Date filter</span>
+                <svg
+                  width="17"
+                  height="19"
+                  viewBox="0 0 17 19"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M11.6616 0.333984C12.0066 0.333984 12.2866 0.613984 12.2866 0.958984L12.287 1.66549C13.5037 1.74891 14.5143 2.16569 15.2295 2.8824C16.0103 3.66657 16.4212 4.79407 16.417 6.14657V13.7491C16.417 16.5257 14.6537 18.2507 11.8162 18.2507H4.76783C1.93033 18.2507 0.166992 16.5016 0.166992 13.6857V6.1449C0.166992 3.52589 1.73954 1.84477 4.30423 1.66578L4.30474 0.958984C4.30474 0.613984 4.58474 0.333984 4.92974 0.333984C5.27474 0.333984 5.55474 0.613984 5.55474 0.958984L5.55449 1.64982H11.0362L11.0366 0.958984C11.0366 0.613984 11.3166 0.333984 11.6616 0.333984ZM15.167 7.75398H1.41699V13.6857C1.41699 15.8241 2.60699 17.0007 4.76783 17.0007H11.8162C13.977 17.0007 15.167 15.8457 15.167 13.7491L15.167 7.75398ZM12.0013 12.9976C12.3463 12.9976 12.6263 13.2776 12.6263 13.6226C12.6263 13.9676 12.3463 14.2476 12.0013 14.2476C11.6563 14.2476 11.373 13.9676 11.373 13.6226C11.373 13.2776 11.6488 12.9976 11.9938 12.9976H12.0013ZM8.30341 12.9976C8.64841 12.9976 8.92841 13.2776 8.92841 13.6226C8.92841 13.9676 8.64841 14.2476 8.30341 14.2476C7.95841 14.2476 7.67508 13.9676 7.67508 13.6226C7.67508 13.2776 7.95091 12.9976 8.29591 12.9976H8.30341ZM4.59774 12.9976C4.94274 12.9976 5.22274 13.2776 5.22274 13.6226C5.22274 13.9676 4.94274 14.2476 4.59774 14.2476C4.25274 14.2476 3.96858 13.9676 3.96858 13.6226C3.96858 13.2776 4.24524 12.9976 4.59024 12.9976H4.59774ZM12.0013 9.75865C12.3463 9.75865 12.6263 10.0387 12.6263 10.3837C12.6263 10.7287 12.3463 11.0087 12.0013 11.0087C11.6563 11.0087 11.373 10.7287 11.373 10.3837C11.373 10.0387 11.6488 9.75865 11.9938 9.75865H12.0013ZM8.30341 9.75865C8.64841 9.75865 8.92841 10.0387 8.92841 10.3837C8.92841 10.7287 8.64841 11.0087 8.30341 11.0087C7.95841 11.0087 7.67508 10.7287 7.67508 10.3837C7.67508 10.0387 7.95091 9.75865 8.29591 9.75865H8.30341ZM4.59774 9.75865C4.94274 9.75865 5.22274 10.0387 5.22274 10.3837C5.22274 10.7287 4.94274 11.0087 4.59774 11.0087C4.25274 11.0087 3.96858 10.7287 3.96858 10.3837C3.96858 10.0387 4.24524 9.75865 4.59024 9.75865H4.59774ZM11.0362 2.89982H5.55449L5.55474 3.70148C5.55474 4.04648 5.27474 4.32648 4.92974 4.32648C4.58474 4.32648 4.30474 4.04648 4.30474 3.70148L4.3043 2.91874C2.43744 3.07556 1.41699 4.2072 1.41699 6.1449V6.50398H15.167L15.167 6.1449C15.1703 5.11573 14.8937 4.31573 14.3445 3.76573C13.8624 3.28224 13.1577 2.99349 12.2873 2.91914L12.2866 3.70148C12.2866 4.04648 12.0066 4.32648 11.6616 4.32648C11.3166 4.32648 11.0366 4.04648 11.0366 3.70148L11.0362 2.89982Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </Button>
+
+              {/* Date Picker Popover */}
+              {isDatePickerOpen && (
+                <div className="absolute z-10 mt-2 bg-white border shadow-lg rounded-lg p-4">
+                  <DatePicker
+                    selected={startDate}
+                    onChange={handleDateChange}
+                    startDate={startDate}
+                    endDate={endDate}
+                    selectsRange
+                    inline
+                  />
+                  <div className="mt-4 flex justify-end space-x-2">
+                    <Button variant="outline" color="normal" onClick={() => setIsDatePickerOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button variant="default" color="normal" onClick={onApplyFilter}>
+                      Apply Filter
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
             <Button variant="default" color="normal" onClick={() => handleAddFAQ()}>
               <span className="hidden lg:block">Create Job</span>
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -781,7 +857,7 @@ const TableJobs = (props: Props) => {
               </svg>
             </Button>
           </div>
-          <Button variant="ghost" className="text-black dark:text-white">
+          {/* <Button variant="ghost" className="text-black dark:text-white">
             <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M9.99984 11.334C10.4601 11.334 10.8332 10.9609 10.8332 10.5007C10.8332 10.0404 10.4601 9.66732 9.99984 9.66732C9.5396 9.66732 9.1665 10.0404 9.1665 10.5007C9.1665 10.9609 9.5396 11.334 9.99984 11.334Z"
@@ -805,7 +881,7 @@ const TableJobs = (props: Props) => {
                 stroke-linejoin="round"
               />
             </svg>
-          </Button>
+          </Button> */}
         </div>
       </div>
       <UseTableTanStackSSR columns={columns} data={filteredData} />
@@ -821,6 +897,54 @@ const TableJobs = (props: Props) => {
         rowsPerPage={pageSize}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+      
+      {/* Modal for "Show More" */}
+
+      
+      <Transition appear show={isOpenModalView} as={React.Fragment}>
+        <Dialog as="div" className="relative z-20" onClose={closeViewModal}>
+          <Transition.Child
+            as={React.Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={React.Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 mb-4">
+                    Job description
+                  </Dialog.Title>
+                  <div className="w-full h-[500px] border">
+                    {/* Scrollable Content */}
+                    <div className="h-[500px] overflow-y-auto">
+                      <div
+                        className="prose max-w-none text-gray-700"
+                        dangerouslySetInnerHTML={{ __html: currentJobDescription }}
+                      />
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
       {/* <div className="h-[88px] rounded-b-xl flex flex-row justify-between p-6">
         <Button variant="outline">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
