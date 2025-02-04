@@ -840,24 +840,6 @@ const TableFAQ = (props: Props) => {
         theme="dark"
       />
       <div className="flex pr-20 justify-between">
-        <button
-          type="button"
-          className={`flex mb-4 px-3 py-2 text-sm font-medium text-center text-white rounded-lg focus:outline-none ${
-            loadingMatching
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          }`}
-          onClick={() => handleMatchingCandidate()}
-          disabled={loadingMatching}
-        >
-          {loadingMatching ? (
-            <MdLightbulb style={{ fontSize: "18px" }} className="mr-2" />
-          ) : (
-            <MdLightbulbOutline style={{ fontSize: "18px" }} className="mr-2" />
-          )}
-          {loadingMatching ? "Matching..." : "Match"}
-        </button>
-
         <Menu as="div" className="relative inline-block text-left">
           <div>
             <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
@@ -904,6 +886,24 @@ const TableFAQ = (props: Props) => {
             </Menu.Items>
           </Transition>
         </Menu>
+
+        <button
+          type="button"
+          className={`flex mb-4 px-3 py-2 text-sm font-medium text-center text-white rounded-lg focus:outline-none ${
+            loadingMatching
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          }`}
+          onClick={() => handleMatchingCandidate()}
+          disabled={loadingMatching}
+        >
+          {loadingMatching ? (
+            <MdLightbulb style={{ fontSize: "18px" }} className="mr-2" />
+          ) : (
+            <MdLightbulbOutline style={{ fontSize: "18px" }} className="mr-2" />
+          )}
+          {loadingMatching ? "Matching..." : "Match"}
+        </button>
       </div>
 
       <br />

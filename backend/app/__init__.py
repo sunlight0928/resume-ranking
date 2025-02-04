@@ -14,7 +14,7 @@ def create_app(settings_module):
 
     # Initialize the extensions
     mongo.init_app(app)
-    cors.init_app(app, supports_credentials="true", resources={r"*": {"origins": "https://resumegenie.karzus.com"}})
+    cors.init_app(app, supports_credentials="true", resources={r"*": {"origins": "*"}})
 
     # Logging configuration
     configure_logging(app)
