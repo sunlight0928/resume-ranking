@@ -22,8 +22,9 @@ import { useMatchingDetailData } from "@/app/hooks/react-query/management/file/u
 import { BsChevronDown } from "react-icons/bs";
 import { MdLightbulbOutline, MdLightbulb } from "react-icons/md";
 import { PDFViewer, Document, Page, Text, View, StyleSheet,Image } from "@react-pdf/renderer";
-import { FaDownload, FaPrint, FaSearch } from "react-icons/fa";
+import { FaDownload, FaPrint, FaSearch, FaCheckCircle, FaHourglassHalf } from "react-icons/fa";
 import { jsPDF } from "jspdf";
+import { Button } from "@/app/components/ui/Button";
 
 function classNames(...classes: (string | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -305,15 +306,21 @@ const TableFAQ = (props: Props) => {
         const statusClass = row.original.matching_status
           ? "bg-green-400"
           : "bg-red-400";
+    
         // Convert matching_status to a string
         const statusString = row.original.matching_status
           ? "Matched"
           : "Pending";
-
+    
+        // Choose the appropriate icon
+        const Icon = row.original.matching_status ? FaCheckCircle : FaHourglassHalf;
+    
         return (
           <div
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold text-gray-100 ${statusClass}`}
+            className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-semibold text-gray-100 ${statusClass}`}
           >
+            {/* Add the icon */}
+            <Icon className="text-sm" /> {/* Adjust size with `text-sm` */}
             {statusString}
           </div>
         );
@@ -323,29 +330,41 @@ const TableFAQ = (props: Props) => {
       header: "Action",
       cell: ({ row }: { row: Row<any> }) => {
         return (
-          <>
+          <div className="flex flex-row gap-3 justify-center">
             {/* <button
               className="p-2 mr-2 rounded-lg text-xs font-medium text-center text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
               onClick={() => handleModifyFAQ(row.original._id)}
             >
               Update
             </button> */}
-            <button
-              className="p-2 text-xs font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              value={row.original.id}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-[#292D32] hover:text-[#292D32AA] dark:text-[#CDD1D6]"
               onClick={() => handleDetail(row.original.id, selectedJobId, row.original.candidate_name, row.original.candidate_phone, row.original.candidate_email)}
             >
-              Detail
-            </button>
-            <button
-              className="p-2 mx-2 rounded-lg text-xs font-medium text-center text-white bg-yellow-500 hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
-              value={row.original.id}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.9999 16.3299C9.60992 16.3299 7.66992 14.3899 7.66992 11.9999C7.66992 9.60992 9.60992 7.66992 11.9999 7.66992C14.3899 7.66992 16.3299 9.60992 16.3299 11.9999C16.3299 14.3899 14.3899 16.3299 11.9999 16.3299ZM11.9999 9.16992C10.4399 9.16992 9.16992 10.4399 9.16992 11.9999C9.16992 13.5599 10.4399 14.8299 11.9999 14.8299C13.5599 14.8299 14.8299 13.5599 14.8299 11.9999C14.8299 10.4399 13.5599 9.16992 11.9999 9.16992Z" fill="currentColor"/>
+                <path d="M12.0001 21.0205C8.24008 21.0205 4.69008 18.8205 2.25008 15.0005C1.19008 13.3505 1.19008 10.6605 2.25008 9.00047C4.70008 5.18047 8.25008 2.98047 12.0001 2.98047C15.7501 2.98047 19.3001 5.18047 21.7401 9.00047C22.8001 10.6505 22.8001 13.3405 21.7401 15.0005C19.3001 18.8205 15.7501 21.0205 12.0001 21.0205ZM12.0001 4.48047C8.77008 4.48047 5.68008 6.42047 3.52008 9.81047C2.77008 10.9805 2.77008 13.0205 3.52008 14.1905C5.68008 17.5805 8.77008 19.5205 12.0001 19.5205C15.2301 19.5205 18.3201 17.5805 20.4801 14.1905C21.2301 13.0205 21.2301 10.9805 20.4801 9.81047C18.3201 6.42047 15.2301 4.48047 12.0001 4.48047Z" fill="currentColor"/>
+              </svg>
+
+            </Button>
+            <Button
+              variant='secondary'
+              size="lg"
+              className="gap-2"
               onClick={() => handleOutput(row.original.id, selectedJobId, row.original.candidate_name, row.original.candidate_phone, row.original.candidate_email)}
             >
-              Output
-            </button>            
+              Output 
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 11.834C5.93333 11.834 5.87333 11.8207 5.80667 11.794C5.62 11.7207 5.5 11.534 5.5 11.334V7.33398C5.5 7.06065 5.72667 6.83398 6 6.83398C6.27333 6.83398 6.5 7.06065 6.5 7.33398V10.1273L6.98 9.64732C7.17333 9.45398 7.49333 9.45398 7.68667 9.64732C7.88 9.84065 7.88 10.1607 7.68667 10.354L6.35333 11.6873C6.26 11.7807 6.12667 11.834 6 11.834Z" fill="currentColor"/>
+                <path d="M6.00012 11.8336C5.87346 11.8336 5.74679 11.787 5.64679 11.687L4.31346 10.3536C4.12012 10.1603 4.12012 9.84029 4.31346 9.64695C4.50679 9.45362 4.82679 9.45362 5.02012 9.64695L6.35346 10.9803C6.54679 11.1736 6.54679 11.4936 6.35346 11.687C6.25346 11.787 6.12679 11.8336 6.00012 11.8336Z" fill="currentColor"/>
+                <path d="M10.0002 15.1673H6.00016C2.38016 15.1673 0.833496 13.6207 0.833496 10.0007V6.00065C0.833496 2.38065 2.38016 0.833984 6.00016 0.833984H9.3335C9.60683 0.833984 9.8335 1.06065 9.8335 1.33398C9.8335 1.60732 9.60683 1.83398 9.3335 1.83398H6.00016C2.92683 1.83398 1.8335 2.92732 1.8335 6.00065V10.0007C1.8335 13.074 2.92683 14.1673 6.00016 14.1673H10.0002C13.0735 14.1673 14.1668 13.074 14.1668 10.0007V6.66732C14.1668 6.39398 14.3935 6.16732 14.6668 6.16732C14.9402 6.16732 15.1668 6.39398 15.1668 6.66732V10.0007C15.1668 13.6207 13.6202 15.1673 10.0002 15.1673Z" fill="currentColor"/>
+                <path d="M14.6668 7.16633H12.0002C9.72016 7.16633 8.8335 6.27967 8.8335 3.99967V1.333C8.8335 1.133 8.9535 0.946334 9.14016 0.873C9.32683 0.793 9.54016 0.839667 9.68683 0.979667L15.0202 6.313C15.1602 6.453 15.2068 6.673 15.1268 6.85967C15.0468 7.04633 14.8668 7.16633 14.6668 7.16633ZM9.8335 2.53967V3.99967C9.8335 5.71967 10.2802 6.16633 12.0002 6.16633H13.4602L9.8335 2.53967Z" fill="currentColor"/>
+              </svg>
+            </Button>          
             {/* <FaRegFilePdf className="dark:text-white w-6 h-6 mr-2" /> */}
-          </>
+          </div>
         );
       },
     }),
@@ -889,7 +908,7 @@ const TableFAQ = (props: Props) => {
 
         <button
           type="button"
-          className={`flex mb-4 px-3 py-2 text-sm font-medium text-center text-white rounded-lg focus:outline-none ${
+          className={`flex mb-4 px-3 py-2 text-sm font-medium text-center text-white rounded-lg focus:outline-none bg-[#7059F3] hover:bg-[#7059F3AA] ${
             loadingMatching
               ? "bg-gray-300 cursor-not-allowed"
               : "bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
@@ -912,16 +931,115 @@ const TableFAQ = (props: Props) => {
 
       {/* Pagination */}
       <TablePagination
-        rowsPerPageOptions={[10, 20, 30]}
         component="div"
-        className="dark:text-white"
-        count={data.total_matching}
-        page={currentPage}
-        onPageChange={handlePageOnchange}
-        rowsPerPage={pageSize}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        className="hidden" // Add a utility class to hide the element
+        rowsPerPageOptions={[]} // Remove the "Rows per page" options
+        count={data?.total_matching || 0} // Total number of filtered rows
+        page={currentPage} // Current page
+        onPageChange={handlePageOnchange} // Handle page changes
+        rowsPerPage={pageSize} // Number of rows per page
+        onRowsPerPageChange={handleChangeRowsPerPage} // Handle rows per page change (not needed if rowsPerPageOptions is empty)
+        sx={{
+          display: 'none', // Hide the pagination completely
+        }}
       />
 
+      <div className="h-[88px] rounded-b-xl flex flex-row justify-between p-6">
+        {/* Preview Button */}
+        <Button 
+          variant="outline" 
+          onClick={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 0))}
+          disabled={currentPage === 0} // Disable if already on the first page
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12.8332 6.99984H1.1665M1.1665 6.99984L6.99984 12.8332M1.1665 6.99984L6.99984 1.1665"
+              stroke="currentColor"
+              stroke-width="1.67"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Preview
+        </Button>
+
+        {/* Pagination Numbers */}
+        <div className="flex flex-row gap-0.5">
+          {(() => {
+            const totalPages = Math.ceil((data?.total_matching || 0) / pageSize); // Total number of pages
+            const maxVisiblePages = 3; // Number of pages to show on either side of the current page
+            const pagination = []; // Array to store pagination elements
+
+            // Helper function to add a page button
+            const addPageButton = (pageIndex: number) => {
+              pagination.push(
+                <button
+                  key={pageIndex}
+                  className={`w-10 h-10 rounded-lg ${
+                    pageIndex === currentPage ? "text-blue-normal bg-blue-light" : "text-black dark:text-white bg-transparent"
+                  }`}
+                  onClick={() => setCurrentPage(pageIndex)} // Set the current page when clicked
+                >
+                  {pageIndex + 1} {/* Display 1-based page numbers */}
+                </button>
+              );
+            };
+
+            // Add the first page (always visible)
+            addPageButton(0);
+
+            // Add "..." if the range of pages is far from the beginning
+            if (currentPage > maxVisiblePages) {
+              pagination.push(
+                <span key="start-ellipsis" className="w-10 h-10 flex items-center justify-center">
+                  ...
+                </span>
+              );
+            }
+
+            // Add pages around the current page
+            const startPage = Math.max(1, currentPage - maxVisiblePages); // Start from the earlier page
+            const endPage = Math.min(totalPages - 2, currentPage + maxVisiblePages); // End before the last page
+            for (let i = startPage; i <= endPage; i++) {
+              addPageButton(i); // Add the buttons for pages in the range
+            }
+
+            // Add "..." if the range of pages is far from the end
+            if (currentPage < totalPages - maxVisiblePages - 1) {
+              pagination.push(
+                <span key="end-ellipsis" className="w-10 h-10 flex items-center justify-center">
+                  ...
+                </span>
+              );
+            }
+
+            // Add the last page (always visible)
+            if (totalPages > 1) {
+              addPageButton(totalPages - 1);
+            }
+
+            return pagination; // Return the pagination elements
+          })()}
+        </div>
+
+        {/* Next Button */}
+        <Button
+          variant="outline"
+          onClick={() => setCurrentPage((prevPage) => Math.min(prevPage + 1, Math.ceil((data?.total_matching || 0) / pageSize) - 1))}
+          disabled={currentPage === Math.ceil((data?.total_matching || 0) / pageSize) - 1} // Disable if already on the last page
+        >
+          Next
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M1.1665 6.99984H12.8332M12.8332 6.99984L6.99984 1.1665M12.8332 6.99984L6.99984 12.8332"
+              stroke="currentColor"
+              stroke-width="1.67"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </Button>
+      </div>
       {/* Modal delete */}
       <Transition appear show={isOpenModalDelete} as={React.Fragment}>
         <Dialog as="div" className="relative z-20" onClose={closeModal}>
@@ -1071,9 +1189,9 @@ const TableFAQ = (props: Props) => {
 
       {/* Drawer */}
       <Drawer anchor="right" open={isOpenDrawer} onClose={handleDrawerClose}>
-        <div className="flex items-center p-2 justify-center bg-blue-700 text-white">
+        <div className="flex items-center p-2 justify-center bg-[#7059F3] text-white">
           <button onClick={() => handleDrawerClose()}>
-            <IconArrowRight className="absolute left-2 top-1 h-8 w-8 hover:cursor-pointer rounded-full p-1 bg-blue-500 text-white hover:opacity-80" />
+            <IconArrowRight className="absolute left-2 top-1 h-8 w-8 hover:cursor-pointer rounded-full p-1 bg-[#7059F3] text-white hover:opacity-80" />
           </button>
           <div className="text-base font-bold">
             Detail Analyse Matching Candidate
