@@ -9,7 +9,9 @@ import { Skeleton } from "@mui/material";
 import dynamic from "next/dynamic";
 
 // Dynamically import the TableListFile component
-const TableListFile = dynamic(() => import("../components/table/TableCandidates").then((mod) => mod.default));
+const TableListFile = dynamic(() =>
+  import("../components/table/TableCandidates").then((mod) => mod.default)
+);
 
 // FilesManagementDetail2 component
 const FilesManagementDetail = () => {
@@ -19,7 +21,10 @@ const FilesManagementDetail = () => {
   return (
     <>
       {/* Set the title and meta description of the page */}
-      <HeadMain title="Candidates - Management | Dashboard - ResumeGenie" description="Dashboard - ResumeGenie" />
+      <HeadMain
+        title="Candidates Management • ResumeGenie"
+        description="Candidates Management • ResumeGenie"
+      />
 
       {/* Display the breadcrumb */}
       <BreadcrumbDashboard title={`Candidates`} />
@@ -37,7 +42,11 @@ const FilesManagementDetail = () => {
                   {/* Conditionally render loading state or TableListFile */}
                   {isLoading || isError ? (
                     <>
-                      <Skeleton variant="rectangular" width="100%" height={200} />
+                      <Skeleton
+                        variant="rectangular"
+                        width="100%"
+                        height={200}
+                      />
                     </>
                   ) : (
                     <TableListFile data={data} refetch={refetch} />

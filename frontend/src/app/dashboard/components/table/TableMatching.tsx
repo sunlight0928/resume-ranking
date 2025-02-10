@@ -21,8 +21,22 @@ import { useMatchingDetailData } from "@/app/hooks/react-query/management/file/u
 
 import { BsChevronDown } from "react-icons/bs";
 import { MdLightbulbOutline, MdLightbulb } from "react-icons/md";
-import { PDFViewer, Document, Page, Text, View, StyleSheet,Image } from "@react-pdf/renderer";
-import { FaDownload, FaPrint, FaSearch, FaCheckCircle, FaHourglassHalf } from "react-icons/fa";
+import {
+  PDFViewer,
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+} from "@react-pdf/renderer";
+import {
+  FaDownload,
+  FaPrint,
+  FaSearch,
+  FaCheckCircle,
+  FaHourglassHalf,
+} from "react-icons/fa";
 import { jsPDF } from "jspdf";
 import { Button } from "@/app/components/ui/Button";
 
@@ -60,7 +74,7 @@ const pdfStyles = StyleSheet.create({
     textAlign: "center",
     color: "#5443B6", // Blue color for the title
     marginBottom: 20,
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   sectionTitle: {
     fontSize: 14,
@@ -122,15 +136,19 @@ const TableFAQ = (props: Props) => {
   const [inputs, setInputs] = React.useState<InputItem[] | []>([]);
   const [CandidateId, setCandidateId] = React.useState<string>("id");
   const [selectedJobId, setSelectedJobId] = React.useState<string>("id");
-  const [detailCandidateName, SetDetailCandidateName] = React.useState<string>("None");
-  const [detailCandidatePhone, SetDetailCandidatePhone] = React.useState<string>("None");
-  const [detailCandidateEmail, SetDetailCandidateEmail] = React.useState<string>("None");
+  const [detailCandidateName, SetDetailCandidateName] =
+    React.useState<string>("None");
+  const [detailCandidatePhone, SetDetailCandidatePhone] =
+    React.useState<string>("None");
+  const [detailCandidateEmail, SetDetailCandidateEmail] =
+    React.useState<string>("None");
   const candidateDetailQuery = useMatchingDetailData(
     CandidateId,
     selectedJobId
   );
   const [loadingMatching, setLoadingMatching] = React.useState<boolean>(false);
-  const [isOutputModalOpen, setIsOutputModalOpen] = React.useState<boolean>(false);
+  const [isOutputModalOpen, setIsOutputModalOpen] =
+    React.useState<boolean>(false);
   const [dataForm, setDataForm] = React.useState<DataFormModel>({
     job_name: "",
     job_description: "",
@@ -180,9 +198,14 @@ const TableFAQ = (props: Props) => {
     setIsOpenDrawer(false);
   };
 
-  const handleDetail = async (candidateId: string, jobId: string, candidateName: string, candidatePhone: string, email: string) => {
-    if (selectedJobName != "Position Name")
-    {
+  const handleDetail = async (
+    candidateId: string,
+    jobId: string,
+    candidateName: string,
+    candidatePhone: string,
+    email: string
+  ) => {
+    if (selectedJobName != "Position Name") {
       await setCandidateId(candidateId);
       await setSelectedJobId(jobId);
       await SetDetailCandidateName(candidateName);
@@ -306,15 +329,17 @@ const TableFAQ = (props: Props) => {
         const statusClass = row.original.matching_status
           ? "bg-green-400"
           : "bg-red-400";
-    
+
         // Convert matching_status to a string
         const statusString = row.original.matching_status
           ? "Matched"
           : "Pending";
-    
+
         // Choose the appropriate icon
-        const Icon = row.original.matching_status ? FaCheckCircle : FaHourglassHalf;
-    
+        const Icon = row.original.matching_status
+          ? FaCheckCircle
+          : FaHourglassHalf;
+
         return (
           <div
             className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-semibold text-gray-100 ${statusClass}`}
@@ -341,28 +366,73 @@ const TableFAQ = (props: Props) => {
               variant="ghost"
               size="icon"
               className="text-[#292D32] hover:text-[#292D32AA] dark:text-[#CDD1D6]"
-              onClick={() => handleDetail(row.original.id, selectedJobId, row.original.candidate_name, row.original.candidate_phone, row.original.candidate_email)}
+              onClick={() =>
+                handleDetail(
+                  row.original.id,
+                  selectedJobId,
+                  row.original.candidate_name,
+                  row.original.candidate_phone,
+                  row.original.candidate_email
+                )
+              }
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11.9999 16.3299C9.60992 16.3299 7.66992 14.3899 7.66992 11.9999C7.66992 9.60992 9.60992 7.66992 11.9999 7.66992C14.3899 7.66992 16.3299 9.60992 16.3299 11.9999C16.3299 14.3899 14.3899 16.3299 11.9999 16.3299ZM11.9999 9.16992C10.4399 9.16992 9.16992 10.4399 9.16992 11.9999C9.16992 13.5599 10.4399 14.8299 11.9999 14.8299C13.5599 14.8299 14.8299 13.5599 14.8299 11.9999C14.8299 10.4399 13.5599 9.16992 11.9999 9.16992Z" fill="currentColor"/>
-                <path d="M12.0001 21.0205C8.24008 21.0205 4.69008 18.8205 2.25008 15.0005C1.19008 13.3505 1.19008 10.6605 2.25008 9.00047C4.70008 5.18047 8.25008 2.98047 12.0001 2.98047C15.7501 2.98047 19.3001 5.18047 21.7401 9.00047C22.8001 10.6505 22.8001 13.3405 21.7401 15.0005C19.3001 18.8205 15.7501 21.0205 12.0001 21.0205ZM12.0001 4.48047C8.77008 4.48047 5.68008 6.42047 3.52008 9.81047C2.77008 10.9805 2.77008 13.0205 3.52008 14.1905C5.68008 17.5805 8.77008 19.5205 12.0001 19.5205C15.2301 19.5205 18.3201 17.5805 20.4801 14.1905C21.2301 13.0205 21.2301 10.9805 20.4801 9.81047C18.3201 6.42047 15.2301 4.48047 12.0001 4.48047Z" fill="currentColor"/>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11.9999 16.3299C9.60992 16.3299 7.66992 14.3899 7.66992 11.9999C7.66992 9.60992 9.60992 7.66992 11.9999 7.66992C14.3899 7.66992 16.3299 9.60992 16.3299 11.9999C16.3299 14.3899 14.3899 16.3299 11.9999 16.3299ZM11.9999 9.16992C10.4399 9.16992 9.16992 10.4399 9.16992 11.9999C9.16992 13.5599 10.4399 14.8299 11.9999 14.8299C13.5599 14.8299 14.8299 13.5599 14.8299 11.9999C14.8299 10.4399 13.5599 9.16992 11.9999 9.16992Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M12.0001 21.0205C8.24008 21.0205 4.69008 18.8205 2.25008 15.0005C1.19008 13.3505 1.19008 10.6605 2.25008 9.00047C4.70008 5.18047 8.25008 2.98047 12.0001 2.98047C15.7501 2.98047 19.3001 5.18047 21.7401 9.00047C22.8001 10.6505 22.8001 13.3405 21.7401 15.0005C19.3001 18.8205 15.7501 21.0205 12.0001 21.0205ZM12.0001 4.48047C8.77008 4.48047 5.68008 6.42047 3.52008 9.81047C2.77008 10.9805 2.77008 13.0205 3.52008 14.1905C5.68008 17.5805 8.77008 19.5205 12.0001 19.5205C15.2301 19.5205 18.3201 17.5805 20.4801 14.1905C21.2301 13.0205 21.2301 10.9805 20.4801 9.81047C18.3201 6.42047 15.2301 4.48047 12.0001 4.48047Z"
+                  fill="currentColor"
+                />
               </svg>
-
             </Button>
             <Button
-              variant='secondary'
+              variant="secondary"
               size="lg"
               className="gap-2"
-              onClick={() => handleOutput(row.original.id, selectedJobId, row.original.candidate_name, row.original.candidate_phone, row.original.candidate_email)}
+              onClick={() =>
+                handleOutput(
+                  row.original.id,
+                  selectedJobId,
+                  row.original.candidate_name,
+                  row.original.candidate_phone,
+                  row.original.candidate_email
+                )
+              }
             >
-              Output 
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 11.834C5.93333 11.834 5.87333 11.8207 5.80667 11.794C5.62 11.7207 5.5 11.534 5.5 11.334V7.33398C5.5 7.06065 5.72667 6.83398 6 6.83398C6.27333 6.83398 6.5 7.06065 6.5 7.33398V10.1273L6.98 9.64732C7.17333 9.45398 7.49333 9.45398 7.68667 9.64732C7.88 9.84065 7.88 10.1607 7.68667 10.354L6.35333 11.6873C6.26 11.7807 6.12667 11.834 6 11.834Z" fill="currentColor"/>
-                <path d="M6.00012 11.8336C5.87346 11.8336 5.74679 11.787 5.64679 11.687L4.31346 10.3536C4.12012 10.1603 4.12012 9.84029 4.31346 9.64695C4.50679 9.45362 4.82679 9.45362 5.02012 9.64695L6.35346 10.9803C6.54679 11.1736 6.54679 11.4936 6.35346 11.687C6.25346 11.787 6.12679 11.8336 6.00012 11.8336Z" fill="currentColor"/>
-                <path d="M10.0002 15.1673H6.00016C2.38016 15.1673 0.833496 13.6207 0.833496 10.0007V6.00065C0.833496 2.38065 2.38016 0.833984 6.00016 0.833984H9.3335C9.60683 0.833984 9.8335 1.06065 9.8335 1.33398C9.8335 1.60732 9.60683 1.83398 9.3335 1.83398H6.00016C2.92683 1.83398 1.8335 2.92732 1.8335 6.00065V10.0007C1.8335 13.074 2.92683 14.1673 6.00016 14.1673H10.0002C13.0735 14.1673 14.1668 13.074 14.1668 10.0007V6.66732C14.1668 6.39398 14.3935 6.16732 14.6668 6.16732C14.9402 6.16732 15.1668 6.39398 15.1668 6.66732V10.0007C15.1668 13.6207 13.6202 15.1673 10.0002 15.1673Z" fill="currentColor"/>
-                <path d="M14.6668 7.16633H12.0002C9.72016 7.16633 8.8335 6.27967 8.8335 3.99967V1.333C8.8335 1.133 8.9535 0.946334 9.14016 0.873C9.32683 0.793 9.54016 0.839667 9.68683 0.979667L15.0202 6.313C15.1602 6.453 15.2068 6.673 15.1268 6.85967C15.0468 7.04633 14.8668 7.16633 14.6668 7.16633ZM9.8335 2.53967V3.99967C9.8335 5.71967 10.2802 6.16633 12.0002 6.16633H13.4602L9.8335 2.53967Z" fill="currentColor"/>
+              Output
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6 11.834C5.93333 11.834 5.87333 11.8207 5.80667 11.794C5.62 11.7207 5.5 11.534 5.5 11.334V7.33398C5.5 7.06065 5.72667 6.83398 6 6.83398C6.27333 6.83398 6.5 7.06065 6.5 7.33398V10.1273L6.98 9.64732C7.17333 9.45398 7.49333 9.45398 7.68667 9.64732C7.88 9.84065 7.88 10.1607 7.68667 10.354L6.35333 11.6873C6.26 11.7807 6.12667 11.834 6 11.834Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M6.00012 11.8336C5.87346 11.8336 5.74679 11.787 5.64679 11.687L4.31346 10.3536C4.12012 10.1603 4.12012 9.84029 4.31346 9.64695C4.50679 9.45362 4.82679 9.45362 5.02012 9.64695L6.35346 10.9803C6.54679 11.1736 6.54679 11.4936 6.35346 11.687C6.25346 11.787 6.12679 11.8336 6.00012 11.8336Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M10.0002 15.1673H6.00016C2.38016 15.1673 0.833496 13.6207 0.833496 10.0007V6.00065C0.833496 2.38065 2.38016 0.833984 6.00016 0.833984H9.3335C9.60683 0.833984 9.8335 1.06065 9.8335 1.33398C9.8335 1.60732 9.60683 1.83398 9.3335 1.83398H6.00016C2.92683 1.83398 1.8335 2.92732 1.8335 6.00065V10.0007C1.8335 13.074 2.92683 14.1673 6.00016 14.1673H10.0002C13.0735 14.1673 14.1668 13.074 14.1668 10.0007V6.66732C14.1668 6.39398 14.3935 6.16732 14.6668 6.16732C14.9402 6.16732 15.1668 6.39398 15.1668 6.66732V10.0007C15.1668 13.6207 13.6202 15.1673 10.0002 15.1673Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M14.6668 7.16633H12.0002C9.72016 7.16633 8.8335 6.27967 8.8335 3.99967V1.333C8.8335 1.133 8.9535 0.946334 9.14016 0.873C9.32683 0.793 9.54016 0.839667 9.68683 0.979667L15.0202 6.313C15.1602 6.453 15.2068 6.673 15.1268 6.85967C15.0468 7.04633 14.8668 7.16633 14.6668 7.16633ZM9.8335 2.53967V3.99967C9.8335 5.71967 10.2802 6.16633 12.0002 6.16633H13.4602L9.8335 2.53967Z"
+                  fill="currentColor"
+                />
               </svg>
-            </Button>          
+            </Button>
             {/* <FaRegFilePdf className="dark:text-white w-6 h-6 mr-2" /> */}
           </div>
         );
@@ -555,22 +625,27 @@ const TableFAQ = (props: Props) => {
       break;
   }
 
-  const handleOutput = async (candidateId: string, jobId: string, candidateName: string, candidatePhone: string, email: string) => {
-    if (selectedJobName != "Position Name")
-      {
-        await setCandidateId(candidateId);
-        await setSelectedJobId(jobId);
-        await SetDetailCandidateName(candidateName);
-        await SetDetailCandidatePhone(candidatePhone);
-        await SetDetailCandidateEmail(email);
-  
-        await candidateDetailQuery.refetch();
-        if (candidateDetailQuery.isLoading) {
-          setIsFetching(true);
-        }
-        setIsFetching(false);
-        setIsOutputModalOpen(true);
+  const handleOutput = async (
+    candidateId: string,
+    jobId: string,
+    candidateName: string,
+    candidatePhone: string,
+    email: string
+  ) => {
+    if (selectedJobName != "Position Name") {
+      await setCandidateId(candidateId);
+      await setSelectedJobId(jobId);
+      await SetDetailCandidateName(candidateName);
+      await SetDetailCandidatePhone(candidatePhone);
+      await SetDetailCandidateEmail(email);
+
+      await candidateDetailQuery.refetch();
+      if (candidateDetailQuery.isLoading) {
+        setIsFetching(true);
       }
+      setIsFetching(false);
+      setIsOutputModalOpen(true);
+    }
   };
 
   // Function to close the modal
@@ -584,11 +659,15 @@ const TableFAQ = (props: Props) => {
       toast.error("Resume evaluation details are not loaded yet.");
       return;
     }
-  
+
     const doc = new jsPDF(); // Create a new jsPDF instance
-  
+
     // Extract job details from `jobDetailQuery.data`
-    const title = `Candidate ${detailCandidateName || "Candidate"}'s resume evaluation data for job posting '${candidateDetailQuery.data?.job_name || "Job"}'`;
+    const title = `Candidate ${
+      detailCandidateName || "Candidate"
+    }'s resume evaluation data for job posting '${
+      candidateDetailQuery.data?.job_name || "Job"
+    }'`;
     const candidateName = detailCandidateName || "Candidate";
     const candidatemail = detailCandidateEmail || " ";
     const candidatephone = detailCandidatePhone || " ";
@@ -602,20 +681,20 @@ const TableFAQ = (props: Props) => {
     const technicalSkills = candidateDetailQuery.data.technical_skill || [];
     const softSkills = candidateDetailQuery.data.soft_skill || [];
     const certificates = candidateDetailQuery.data.certificate || [];
-  
+
     const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
     const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
-  
+
     // Set job name title in blue, centered, and with a 30px gap from the top
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
     doc.text(title, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
-  
+
     // Reset font styles for the rest of the content
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-  
+
     const bottomPadding = 10; // Padding at the bottom of the page
     const usablePageHeight = pageHeight - bottomPadding; // Usable height for content
 
@@ -629,7 +708,9 @@ const TableFAQ = (props: Props) => {
       lineHeight: number
     ): number => {
       const bullet = "• "; // Define the bullet point
-      const lines = Array.isArray(text) ? text : docInstance.splitTextToSize(text, maxWidth - 10); // Adjust maxWidth for the bullet
+      const lines = Array.isArray(text)
+        ? text
+        : docInstance.splitTextToSize(text, maxWidth - 10); // Adjust maxWidth for the bullet
       let currentY = y;
       lines.forEach((line: string, index: number) => {
         if (currentY + lineHeight > usablePageHeight) {
@@ -642,42 +723,72 @@ const TableFAQ = (props: Props) => {
       });
       return currentY; // Return the updated `y` position
     };
-  
+
     // Add sections with data
-    const addSection = (title: string, items: string[], yOffset: number): number => {
+    const addSection = (
+      title: string,
+      items: string[],
+      yOffset: number
+    ): number => {
       if (items.length > 0) {
         // Check if there's enough space for the section title
-        if (yOffset + 10 > usablePageHeight) { // 10 is for the title's height
+        if (yOffset + 10 > usablePageHeight) {
+          // 10 is for the title's height
           doc.addPage();
           yOffset = 20; // Reset yOffset on the new page
         }
-    
+
         // Add section title in blue
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14); // Slightly larger font for titles
         doc.setTextColor(0, 0, 255); // Set text color to blue
         doc.text(title, 10, yOffset + 4); // Add section title
         yOffset += 10; // Adjust yOffset for section content
-    
+
         // Add the list items in normal font and black color
         doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
         doc.setTextColor(0, 0, 0); // Reset text color to black
         items.forEach((item) => {
-          yOffset = addWrappedTextWithBullet(doc, item, 15, yOffset, pageWidth - 30, 6); // Add wrapped text with bullet for each item
+          yOffset = addWrappedTextWithBullet(
+            doc,
+            item,
+            15,
+            yOffset,
+            pageWidth - 30,
+            6
+          ); // Add wrapped text with bullet for each item
         });
-    
+
         yOffset += 4; // Add extra space after the section
       }
       return yOffset;
     };
-  
-    const educationStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
-    const experienceStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
-    const responsibilitieStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
-    const technicalSkillStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
-    const softSkillStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
-    const certificateStrings = [`Score: ${candidateDetailQuery.data.degree.score}`, `Comment: ${candidateDetailQuery.data.degree.comment}`];
+
+    const educationStrings = [
+      `Score: ${candidateDetailQuery.data.degree.score}`,
+      `Comment: ${candidateDetailQuery.data.degree.comment}`,
+    ];
+    const experienceStrings = [
+      `Score: ${candidateDetailQuery.data.degree.score}`,
+      `Comment: ${candidateDetailQuery.data.degree.comment}`,
+    ];
+    const responsibilitieStrings = [
+      `Score: ${candidateDetailQuery.data.degree.score}`,
+      `Comment: ${candidateDetailQuery.data.degree.comment}`,
+    ];
+    const technicalSkillStrings = [
+      `Score: ${candidateDetailQuery.data.degree.score}`,
+      `Comment: ${candidateDetailQuery.data.degree.comment}`,
+    ];
+    const softSkillStrings = [
+      `Score: ${candidateDetailQuery.data.degree.score}`,
+      `Comment: ${candidateDetailQuery.data.degree.comment}`,
+    ];
+    const certificateStrings = [
+      `Score: ${candidateDetailQuery.data.degree.score}`,
+      `Comment: ${candidateDetailQuery.data.degree.comment}`,
+    ];
 
     let yOffset = 40; // Start content below the candidate name
     yOffset = addSection("Candidate Name", [candidateName], yOffset);
@@ -692,11 +803,12 @@ const TableFAQ = (props: Props) => {
     yOffset = addSection("Technical Skills", technicalSkillStrings, yOffset);
     yOffset = addSection("Soft Skills", softSkillStrings, yOffset);
     yOffset = addSection("Certificates", certificateStrings, yOffset);
-  
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
     doc.setTextColor(0, 0, 255); // Blue color for the title
-    if (yOffset + 10 > usablePageHeight) { // Check if there's space for the title
+    if (yOffset + 10 > usablePageHeight) {
+      // Check if there's space for the title
       doc.addPage();
       yOffset = 20; // Reset yOffset on the new page
     }
@@ -706,10 +818,10 @@ const TableFAQ = (props: Props) => {
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0); // Black color for the content
     // yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
-  
+
     // Output the PDF as a blob for printing
     const pdfBlob = doc.output("blob"); // Get the PDF as a blob object
-  
+
     // Create a new window and print the PDF
     const pdfURL = URL.createObjectURL(pdfBlob);
     const printWindow = window.open(pdfURL, "_blank");
@@ -725,9 +837,7 @@ const TableFAQ = (props: Props) => {
     //   toast.error("Candidate details are not loaded yet.");
     //   return;
     // }
-  
     // const doc = new jsPDF(); // Create a new jsPDF instance
-  
     // // Extract job details from `jobDetailQuery.data`
     // const candidateName = candidateDetailQuery.data.candidate_name || "Candidate";
     // const candidatemail = candidateDetailQuery.data.email || " ";
@@ -742,23 +852,18 @@ const TableFAQ = (props: Props) => {
     // const certificates = candidateDetailQuery.data.certificate || [];
     // const cv_name = candidateDetailQuery.data.cv_name || " ";
     // const createdAt = `Candidate Created Date: ${new Date(candidateDetailQuery.data.created_at).toLocaleDateString()}`;
-
     // const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
     // const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
-  
     // // Set job name title in blue, centered, and with a 30px gap from the top
     // doc.setFont("helvetica", "bold");
     // doc.setFontSize(20);
     // doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
     // doc.text(candidateName, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
-  
     // // Reset font styles for the rest of the content
     // doc.setFontSize(12);
     // doc.setFont("helvetica", "normal");
-  
     // const bottomPadding = 10; // Padding at the bottom of the page
     // const usablePageHeight = pageHeight - bottomPadding; // Usable height for content
-
     // // Helper function to add text with proper line wrapping and page handling
     // const addWrappedTextWithBullet = (
     //   docInstance: any,
@@ -782,7 +887,6 @@ const TableFAQ = (props: Props) => {
     //   });
     //   return currentY; // Return the updated `y` position
     // };
-
     // // Add sections with data
     // const addSection = (title: string, items: string[], yOffset: number): number => {
     //   if (items.length > 0) {
@@ -791,14 +895,12 @@ const TableFAQ = (props: Props) => {
     //       doc.addPage();
     //       yOffset = 20; // Reset yOffset on the new page
     //     }
-    
     //     // Add section title in blue
     //     doc.setFont("helvetica", "bold");
     //     doc.setFontSize(14); // Slightly larger font for titles
     //     doc.setTextColor(0, 0, 255); // Set text color to blue
     //     doc.text(title, 10, yOffset + 4); // Add section title
     //     yOffset += 10; // Adjust yOffset for section content
-    
     //     // Add the list items in normal font and black color
     //     doc.setFont("helvetica", "normal");
     //     doc.setFontSize(12);
@@ -806,12 +908,10 @@ const TableFAQ = (props: Props) => {
     //     items.forEach((item) => {
     //       yOffset = addWrappedTextWithBullet(doc, item, 15, yOffset, pageWidth - 30, 6); // Add wrapped text with bullet for each item
     //     });
-    
     //     yOffset += 4; // Add extra space after the section
     //   }
     //   return yOffset;
     // };
-  
     // let yOffset = 40; // Start content below the candidate name
     // yOffset = addSection("Candidate Email Address", [candidatemail], yOffset);
     // yOffset = addSection("Candidate Phone Number", [candidatephone], yOffset);
@@ -824,7 +924,6 @@ const TableFAQ = (props: Props) => {
     // yOffset = addSection("Soft Skills", softSkills, yOffset);
     // yOffset = addSection("Certificates", certificates, yOffset);
     // yOffset = addSection("Candidate CV Name", [cv_name], yOffset);
-  
     // doc.setFont("helvetica", "bold");
     // doc.setFontSize(14);
     // doc.setTextColor(0, 0, 255); // Blue color for the title
@@ -838,7 +937,6 @@ const TableFAQ = (props: Props) => {
     // doc.setFontSize(12);
     // doc.setTextColor(0, 0, 0); // Black color for the content
     // yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
-  
     // // Dynamically set the file name using the `jobName`
     // const fileName = `${candidateName}.pdf`;
     // doc.save(fileName);
@@ -859,14 +957,14 @@ const TableFAQ = (props: Props) => {
         theme="dark"
       />
       <div className="flex pr-20 justify-between">
-        <Menu as="div" className="relative inline-block text-left">
+        <Menu
+          as="div"
+          className="relative inline-block text-left text-[#7059F3]"
+        >
           <div>
-            <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <Menu.Button className="inline-flex w-full justify-center gap-x-3.5 rounded-[10px] bg-white px-3 py-2 text-md font-semibold  text-[#7059F3] shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-[#202938]">
               {selectedJobName} {/* Display the selected job name */}
-              <BsChevronDown
-                className="-mr-1 h-5 w-5 text-gray-400"
-                aria-hidden="true"
-              />
+              <BsChevronDown className="-mr-1 h-6 w-15" aria-hidden="true" />
             </Menu.Button>
           </div>
 
@@ -908,7 +1006,7 @@ const TableFAQ = (props: Props) => {
 
         <button
           type="button"
-          className={`flex mb-4 px-3 py-2 text-sm font-medium text-center text-white rounded-lg focus:outline-none bg-[#7059F3] hover:bg-[#7059F3AA] ${
+          className={`flex px-3 py-2 text-md font-medium text-center text-white rounded-lg focus:outline-none bg-[#7059F3] hover:bg-[#7059F3AA] ${
             loadingMatching
               ? "bg-gray-300 cursor-not-allowed"
               : "bg-[#7059F3] hover:bg-[#7059F3AA] focus:ring-4 focus:ring-blue-300 dark:bg-[#7059F3] dark:hover:bg-[#7059F3AA] dark:focus:ring-blue-800"
@@ -917,9 +1015,9 @@ const TableFAQ = (props: Props) => {
           disabled={loadingMatching}
         >
           {loadingMatching ? (
-            <MdLightbulb style={{ fontSize: "18px" }} className="mr-2" />
+            <MdLightbulb style={{ fontSize: "30px" }} className="mr-2" />
           ) : (
-            <MdLightbulbOutline style={{ fontSize: "18px" }} className="mr-2" />
+            <MdLightbulbOutline style={{ fontSize: "30px" }} className="mr-2" />
           )}
           {loadingMatching ? "Matching..." : "Match"}
         </button>
@@ -940,18 +1038,26 @@ const TableFAQ = (props: Props) => {
         rowsPerPage={pageSize} // Number of rows per page
         onRowsPerPageChange={handleChangeRowsPerPage} // Handle rows per page change (not needed if rowsPerPageOptions is empty)
         sx={{
-          display: 'none', // Hide the pagination completely
+          display: "none", // Hide the pagination completely
         }}
       />
 
       <div className="h-[88px] rounded-b-xl flex flex-row justify-between p-6">
         {/* Preview Button */}
-        <Button 
-          variant="outline" 
-          onClick={() => setCurrentPage((prevPage) => Math.max(prevPage - 1, 0))}
+        <Button
+          variant="outline"
+          onClick={() =>
+            setCurrentPage((prevPage) => Math.max(prevPage - 1, 0))
+          }
           disabled={currentPage === 0} // Disable if already on the first page
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
               d="M12.8332 6.99984H1.1665M1.1665 6.99984L6.99984 12.8332M1.1665 6.99984L6.99984 1.1665"
               stroke="currentColor"
@@ -966,7 +1072,9 @@ const TableFAQ = (props: Props) => {
         {/* Pagination Numbers */}
         <div className="flex flex-row gap-0.5">
           {(() => {
-            const totalPages = Math.ceil((data?.total_matching || 0) / pageSize); // Total number of pages
+            const totalPages = Math.ceil(
+              (data?.total_matching || 0) / pageSize
+            ); // Total number of pages
             const maxVisiblePages = 3; // Number of pages to show on either side of the current page
             const pagination = []; // Array to store pagination elements
 
@@ -976,7 +1084,9 @@ const TableFAQ = (props: Props) => {
                 <button
                   key={pageIndex}
                   className={`w-10 h-10 rounded-lg ${
-                    pageIndex === currentPage ? "text-blue-normal bg-blue-light" : "text-black dark:text-white bg-transparent"
+                    pageIndex === currentPage
+                      ? "text-blue-normal bg-blue-light"
+                      : "text-black dark:text-white bg-transparent"
                   }`}
                   onClick={() => setCurrentPage(pageIndex)} // Set the current page when clicked
                 >
@@ -991,7 +1101,10 @@ const TableFAQ = (props: Props) => {
             // Add "..." if the range of pages is far from the beginning
             if (currentPage > maxVisiblePages) {
               pagination.push(
-                <span key="start-ellipsis" className="w-10 h-10 flex items-center justify-center">
+                <span
+                  key="start-ellipsis"
+                  className="w-10 h-10 flex items-center justify-center"
+                >
                   ...
                 </span>
               );
@@ -999,7 +1112,10 @@ const TableFAQ = (props: Props) => {
 
             // Add pages around the current page
             const startPage = Math.max(1, currentPage - maxVisiblePages); // Start from the earlier page
-            const endPage = Math.min(totalPages - 2, currentPage + maxVisiblePages); // End before the last page
+            const endPage = Math.min(
+              totalPages - 2,
+              currentPage + maxVisiblePages
+            ); // End before the last page
             for (let i = startPage; i <= endPage; i++) {
               addPageButton(i); // Add the buttons for pages in the range
             }
@@ -1007,7 +1123,10 @@ const TableFAQ = (props: Props) => {
             // Add "..." if the range of pages is far from the end
             if (currentPage < totalPages - maxVisiblePages - 1) {
               pagination.push(
-                <span key="end-ellipsis" className="w-10 h-10 flex items-center justify-center">
+                <span
+                  key="end-ellipsis"
+                  className="w-10 h-10 flex items-center justify-center"
+                >
                   ...
                 </span>
               );
@@ -1025,11 +1144,27 @@ const TableFAQ = (props: Props) => {
         {/* Next Button */}
         <Button
           variant="outline"
-          onClick={() => setCurrentPage((prevPage) => Math.min(prevPage + 1, Math.ceil((data?.total_matching || 0) / pageSize) - 1))}
-          disabled={currentPage === Math.ceil((data?.total_matching || 0) / pageSize) - 1} // Disable if already on the last page
+          onClick={() =>
+            setCurrentPage((prevPage) =>
+              Math.min(
+                prevPage + 1,
+                Math.ceil((data?.total_matching || 0) / pageSize) - 1
+              )
+            )
+          }
+          disabled={
+            currentPage ===
+            Math.ceil((data?.total_matching || 0) / pageSize) - 1
+          } // Disable if already on the last page
         >
           Next
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
               d="M1.1665 6.99984H12.8332M12.8332 6.99984L6.99984 1.1665M12.8332 6.99984L6.99984 12.8332"
               stroke="currentColor"
@@ -1208,9 +1343,7 @@ const TableFAQ = (props: Props) => {
                   Candidate Name
                 </div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {detailCandidateName
-                    ? detailCandidateName
-                    : "None"}
+                  {detailCandidateName ? detailCandidateName : "None"}
                 </p>
               </div>
 
@@ -1230,9 +1363,7 @@ const TableFAQ = (props: Props) => {
                   Candidate Email
                 </div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {detailCandidateEmail
-                    ? detailCandidateEmail
-                    : "None"}
+                  {detailCandidateEmail ? detailCandidateEmail : "None"}
                 </p>
               </div>
 
@@ -1241,9 +1372,7 @@ const TableFAQ = (props: Props) => {
                   Candidate Phone Number
                 </div>
                 <p className="text-sm leading-6 text-gray-60">
-                  {detailCandidatePhone
-                    ? detailCandidatePhone
-                    : "None"}
+                  {detailCandidatePhone ? detailCandidatePhone : "None"}
                 </p>
               </div>
 
@@ -1443,7 +1572,7 @@ const TableFAQ = (props: Props) => {
           </div>
         </Dialog>
       </Transition>
-      
+
       {/* Output Modal */}
       <Transition appear show={isOutputModalOpen} as={React.Fragment}>
         <Dialog as="div" className="relative z-20" onClose={closeOutputModal}>
@@ -1482,94 +1611,142 @@ const TableFAQ = (props: Props) => {
                     <PDFViewer className="w-full h-full">
                       <Document>
                         <Page size="A4" style={pdfStyles.page}>
-                          <Image 
+                          <Image
                             src="/pdf-maker.png" // Replace with the actual path or URL to your image
                             style={{
                               width: 140, // Adjust the width as needed
                               height: 100, // Adjust the height as needed
-                              alignSelf: 'center'
+                              alignSelf: "center",
                             }}
                           />
                           {/* Candidate Name */}
                           <Text style={pdfStyles.title}>
-                            Candidate {detailCandidateName || "Candidate"}'s resume evaluation details for job posting "{candidateDetailQuery.data?.job_name || "Job"}"
+                            Candidate {detailCandidateName || "Candidate"}'s
+                            resume evaluation details for job posting "
+                            {candidateDetailQuery.data?.job_name || "Job"}"
                           </Text>
 
                           {/* Sections */}
                           <PDFSection
                             title="Candidate Name"
-                            items={[detailCandidateName
-                              ? detailCandidateName
-                              : "None"]}
+                            items={[
+                              detailCandidateName
+                                ? detailCandidateName
+                                : "None",
+                            ]}
                           />
                           <PDFSection
                             title="Candidate Email"
-                            items={[detailCandidateEmail
-                              ? detailCandidateEmail
-                              : "None"]}
+                            items={[
+                              detailCandidateEmail
+                                ? detailCandidateEmail
+                                : "None",
+                            ]}
                           />
                           <PDFSection
                             title="Candidate Phone Number"
-                            items={[detailCandidatePhone
-                              ? detailCandidatePhone
-                              : "None"]}
+                            items={[
+                              detailCandidatePhone
+                                ? detailCandidatePhone
+                                : "None",
+                            ]}
                           />
                           <PDFSection
                             title="Job Name"
-                            items={[candidateDetailQuery.data?.job_name || "None"]}
+                            items={[
+                              candidateDetailQuery.data?.job_name || "None",
+                            ]}
                           />
                           <PDFSection
                             title="Matching Score"
                             items={[
-                              candidateDetailQuery.data?.score !== undefined 
-                                ? `${candidateDetailQuery.data.score}%` 
-                                : "0"
+                              candidateDetailQuery.data?.score !== undefined
+                                ? `${candidateDetailQuery.data.score}%`
+                                : "0",
                             ]}
                           />
                           <PDFSection
                             title="Summary Analyse Candidate"
-                            items={[candidateDetailQuery.data?.summary_comment || "None"]}
+                            items={[
+                              candidateDetailQuery.data?.summary_comment ||
+                                "None",
+                            ]}
                           />
                           <PDFSection
                             title="Analyse Educations"
                             items={[
-                              `Comment: ${candidateDetailQuery.data?.degree?.comment || "None"}`,
-                              `Score: ${candidateDetailQuery.data?.degree?.score || "0"}`
+                              `Comment: ${
+                                candidateDetailQuery.data?.degree?.comment ||
+                                "None"
+                              }`,
+                              `Score: ${
+                                candidateDetailQuery.data?.degree?.score || "0"
+                              }`,
                             ]}
                           />
                           <PDFSection
                             title="Experiences"
                             items={[
-                              `Comment: ${candidateDetailQuery.data?.experience?.comment || "None"}`,
-                              `Score: ${candidateDetailQuery.data?.experience?.score || "0"}`
+                              `Comment: ${
+                                candidateDetailQuery.data?.experience
+                                  ?.comment || "None"
+                              }`,
+                              `Score: ${
+                                candidateDetailQuery.data?.experience?.score ||
+                                "0"
+                              }`,
                             ]}
                           />
                           <PDFSection
                             title="Responsibilities"
                             items={[
-                              `Comment: ${candidateDetailQuery.data?.responsibility?.comment || "None"}`,
-                              `Score: ${candidateDetailQuery.data?.responsibility?.score || "0"}`
+                              `Comment: ${
+                                candidateDetailQuery.data?.responsibility
+                                  ?.comment || "None"
+                              }`,
+                              `Score: ${
+                                candidateDetailQuery.data?.responsibility
+                                  ?.score || "0"
+                              }`,
                             ]}
                           />
                           <PDFSection
                             title="Technical Skills"
                             items={[
-                              `Comment: ${candidateDetailQuery.data?.technical_skill?.comment || "None"}`,
-                              `Score: ${candidateDetailQuery.data?.technical_skill?.score || "0"}`
+                              `Comment: ${
+                                candidateDetailQuery.data?.technical_skill
+                                  ?.comment || "None"
+                              }`,
+                              `Score: ${
+                                candidateDetailQuery.data?.technical_skill
+                                  ?.score || "0"
+                              }`,
                             ]}
                           />
                           <PDFSection
                             title="Soft Skills"
                             items={[
-                              `Comment: ${candidateDetailQuery.data?.soft_skill?.comment || "None"}`,
-                              `Score: ${candidateDetailQuery.data?.soft_skill?.score || "0"}`
+                              `Comment: ${
+                                candidateDetailQuery.data?.soft_skill
+                                  ?.comment || "None"
+                              }`,
+                              `Score: ${
+                                candidateDetailQuery.data?.soft_skill?.score ||
+                                "0"
+                              }`,
                             ]}
                           />
                           <PDFSection
                             title="Certificates"
                             items={[
-                              `Comment: ${candidateDetailQuery.data?.certificate?.comment || "None"}`,
-                              `Score: ${candidateDetailQuery.data?.certificate?.score || "0"}`
+                              `Comment: ${
+                                candidateDetailQuery.data?.certificate
+                                  ?.comment || "None"
+                              }`,
+                              `Score: ${
+                                candidateDetailQuery.data?.certificate?.score ||
+                                "0"
+                              }`,
                             ]}
                           />
                         </Page>

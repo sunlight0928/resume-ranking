@@ -18,7 +18,7 @@ export function ThemeToggle() {
         className={`
           absolute top-1 left-1 h-6 w-6 rounded-full
           transform transition-transform duration-200 ease-out
-          ${theme === "light" ? "translate-x-0 bg-[#FFB020]" : "translate-x-6 bg-[#7664FF]"}
+          ${theme === "light" ? "translate-x-0 bg-[#FFB020]" : "translate-x-8 bg-[#7664FF]"}
           flex items-center justify-center
         `}
       >
