@@ -185,3 +185,43 @@ def get_matching_data(candidate_id, job_id):
     matching["job_name"] = job["job_name"]
 
     return matching
+
+def update_matching_data(summary_comment, candidate_id, job_id):
+    try:
+        # Validate input
+        if not summary_comment or not candidate_id or not job_id:
+            abort(400, message="Invalid input. All fields are required.")
+
+        # Convert candidate_id and job_id to ObjectId
+        candidate_object_id = ObjectId(candidate_id)
+        job_object_id = ObjectId(job_id)
+
+        # Find the matching document
+        matching = mongo.db.matching.find_one({
+            "candidate_id": candidate_object_id,
+            "job_id": job_object_id
+        })
+
+        # If no matching document is found, raise an error
+        if not matching:
+            abort(404, message="Matching data not found for the given candidate and job.")
+
+        # Update the summary_comment in the matching document
+        update_result = mongo.db.matching.update_one(
+            {"candidate_id": candidate_object_id, "job_id": job_object_id},
+            {"$set": {"summary_comment": summary_comment}}
+        )
+
+        # Check if the update was successful
+        if update_result.matched_count == 0:
+            abort(400, message="Failed to update matching data.")
+
+        # Log the update success
+        logger.info(f"Updated summary_comment for candidate {candidate_id} and job {job_id}.")
+
+        return {"message": "Matching data updated successfully."}
+
+    except Exception as e:
+        # Log the error and return an appropriate response
+        logger.error(f"Error updating matching data: {str(e)}")
+        abort(500, message="Internal server error while updating matching data.")

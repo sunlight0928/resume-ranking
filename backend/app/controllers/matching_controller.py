@@ -39,4 +39,9 @@ class GetMatchingData(MethodView):
     @blp.response(200, MatchingDetailSchema)
     def get(self, candidate_id, job_id):
         result = matching_service.get_matching_data(candidate_id, job_id)
+        return result    
+    
+    @blp.arguments(MatchingDetailSchema)
+    def put(self, candidate_data, candidate_id, job_id):
+        result = matching_service.update_matching_data(candidate_data, candidate_id, job_id)
         return result

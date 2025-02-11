@@ -287,32 +287,6 @@ const TableFAQ = (props: Props) => {
     }),
     columnHelper.accessor("comment", {
       header: "Phone Number",
-      // cell: ({ row }: { row: Row<any> }) => {
-      //   const [showFullContent, setShowFullContent] = React.useState(false);
-      //   if (!row.original.summary_comment) {
-      //     return null;
-      //   }
-      //   const content = showFullContent
-      //     ? row.original.summary_comment
-      //     : row.original.summary_comment.slice(0, 200);
-      //   return (
-      //     <>
-      //       <div
-      //         className="whitespace-pre-line text-left"
-      //         id="answer"
-      //         dangerouslySetInnerHTML={{ __html: content }}
-      //       />
-      //       {row.original.summary_comment.length > 200 && (
-      //         <button
-      //           className="text-blue-500 hover:underline focus:outline-none"
-      //           onClick={() => setShowFullContent(!showFullContent)}
-      //         >
-      //           {showFullContent ? "Show less" : "Show more"}
-      //         </button>
-      //       )}
-      //     </>
-      //   );
-      // },
       cell: ({ row }: { row: Row<any> }) => {
         return <>{row.original.candidate_phone}</>;
       },
