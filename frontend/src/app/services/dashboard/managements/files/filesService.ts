@@ -35,10 +35,29 @@ export const getMatchingDetailAxios = async (
   return data;
 };
 
+export const updateMatchingDetailAxios = async (
+  formData: ModifyMatchingDetail,
+  candidateId: string,
+  jobId: string
+) => {
+  const { data } = await useAxios.put(
+    `/candidate/${candidateId}/job/${jobId}`,
+    {
+      summary_comment: formData.summary_comment,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return data;
+};
+
 export const uploadFileAxios = async (
   formData: FormData,
   setProgress: (progress: number) => void,
-  refetch?: ()=>void
+  refetch?: () => void
 ) => {
   try {
     const { data } = await useAxios.post("/upload-cv", formData, {

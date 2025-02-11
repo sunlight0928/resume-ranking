@@ -64,10 +64,10 @@ def filter_page(page_size=10, page=1):
     return results, total_page, total_file
 
 
-def update_candidate(candidate_data, candidate_id):
+def update_candidate(summary_comment, candidate_id):
     collection = mongo.db.candidate
     result = collection.update_one(
-        {"_id": ObjectId(candidate_id)}, {"$set": candidate_data}
+        {"_id": ObjectId(candidate_id)}, {"$set": summary_comment}
     )
     if result.modified_count == 1:
         return {"message": "Document updated successfully"}

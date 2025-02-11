@@ -1,9 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import React, { useState, useEffect, useMemo } from "react";
 import { IconArrowRight } from "@tabler/icons-react";
 import { createColumnHelper, Row } from "@tanstack/react-table";
 import { TablePagination, Drawer } from "@mui/material";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import UseTableTanStackSSR from "@/app/hooks/react-table/useTableTanStackSSR";
 import { Menu, Dialog, Transition } from "@headlessui/react";
@@ -17,7 +18,10 @@ import {
   useAddFAQData,
   useUpdateFAQData,
 } from "@/app/hooks/react-query/logging/faq/useFAQData";
-import { useMatchingDetailData } from "@/app/hooks/react-query/management/file/useFilesUploadData";
+import {
+  useMatchingDetailData,
+  updateMatchingDetailData,
+} from "@/app/hooks/react-query/management/file/useFilesUploadData";
 
 import { BsChevronDown } from "react-icons/bs";
 import { MdLightbulbOutline, MdLightbulb } from "react-icons/md";
@@ -30,15 +34,12 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
-import {
-  FaDownload,
-  FaPrint,
-  FaSearch,
-  FaCheckCircle,
-  FaHourglassHalf,
-} from "react-icons/fa";
+import { FaCheckCircle, FaHourglassHalf } from "react-icons/fa";
 import { jsPDF } from "jspdf";
 import { Button } from "@/app/components/ui/Button";
+
+// Dynamically import ReactQuill (client-side only)
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 function classNames(...classes: (string | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -54,6 +55,10 @@ interface InputItem {
 type FormModel = {
   job_name: string;
   job_description: string;
+};
+
+type UpdateModel = {
+  summary_comment: string;
 };
 
 interface DataFormModel {
@@ -105,10 +110,7 @@ const pdfStyles = StyleSheet.create({
 // Component to render a section with bullets
 const PDFSection = ({ title, items }: { title: string; items: string[] }) => (
   <View>
-    {/* Section Title */}
     <Text style={pdfStyles.sectionTitle}>{title}</Text>
-
-    {/* List Items */}
     {items.length > 0 ? (
       items.map((item, index) => (
         <View style={pdfStyles.bulletPoint} key={index}>
@@ -153,22 +155,34 @@ const TableFAQ = (props: Props) => {
     job_name: "",
     job_description: "",
   });
-
-  // const { data, isLoading, isError, isPreviousData, refetch } = useFAQData((currentPage + 1), pageSize);
-  // const { data: detailFAQData, isLoading: isDetailFAQLoading, refetch: refetchDetailFAQData, isSuccess } = useDetailFAQData(faqId);
+  const [UpdateForm, setUpdateForm] = React.useState<UpdateModel>({
+    summary_comment: "",
+  });
+  const ReactQuill = useMemo(
+    () => dynamic(() => import("react-quill"), { ssr: false }),
+    []
+  );
   const { data: detailAllJobData } = useAllJobData();
 
   const { mutate: deleteFAQ } = useDeleteFAQData(faqId);
   const { mutate: addFAQ } = useAddFAQData(dataForm);
-  const { mutate: updateFAQ } = useUpdateFAQData(dataForm, faqId);
+  const { mutate: updateFAQ } = updateMatchingDetailData();
 
+  updateFAQ({
+    formData: UpdateForm,
+    candidateId: CandidateId,
+    jobId: selectedJobId,
+  });
+
+  const [loading, setLoading] = React.useState<boolean>(false);
   // Define a state variable to store the selected job name
   const [selectedJobName, setSelectedJobName] =
     useState<string>("Position Name");
   const { mutate: processMatching } = useMachingData(selectedJobName);
   const { data, isLoading, isError, isPreviousData, refetch } =
     useMatchingPageData(selectedJobName, currentPage + 1, pageSize);
-
+  const [isEditingSummary, setIsEditingSummary] = React.useState(false); // To toggle edit mode
+  const [editedSummary, setEditedSummary] = React.useState("");
   // Handle item selection
   const handleMenuItemClick = async (jobId: string, jobName: string) => {
     await setSelectedJobId(jobId);
@@ -196,6 +210,11 @@ const TableFAQ = (props: Props) => {
   };
   const handleDrawerClose = () => {
     setIsOpenDrawer(false);
+    setIsEditingSummary(false);
+  };
+
+  const closeOutputModal = () => {
+    setIsOutputModalOpen(false);
   };
 
   const handleDetail = async (
@@ -219,6 +238,21 @@ const TableFAQ = (props: Props) => {
       }
       setIsFetching(false);
       setIsOpenDrawer(true);
+    }
+  };
+
+  const handleUpdate = async (candidateId: string, jobId: string) => {
+    if (selectedJobName != "Position Name") {
+      await setCandidateId(candidateId);
+      await setSelectedJobId(jobId);
+
+      await candidateDetailQuery.refetch();
+
+      if (candidateDetailQuery.isLoading) {
+        setIsFetching(true);
+      }
+      setIsFetching(false);
+      setIsOpenModalUpdate(true);
     }
   };
 
@@ -344,8 +378,7 @@ const TableFAQ = (props: Props) => {
           <div
             className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-semibold text-gray-100 ${statusClass}`}
           >
-            {/* Add the icon */}
-            <Icon className="text-sm" /> {/* Adjust size with `text-sm` */}
+            <Icon className="text-sm" />
             {statusString}
           </div>
         );
@@ -356,12 +389,6 @@ const TableFAQ = (props: Props) => {
       cell: ({ row }: { row: Row<any> }) => {
         return (
           <div className="flex flex-row gap-3 justify-center">
-            {/* <button
-              className="p-2 mr-2 rounded-lg text-xs font-medium text-center text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-              onClick={() => handleModifyFAQ(row.original._id)}
-            >
-              Update
-            </button> */}
             <Button
               variant="ghost"
               size="icon"
@@ -393,6 +420,33 @@ const TableFAQ = (props: Props) => {
                 />
               </svg>
             </Button>
+            {/* <Button
+              variant="ghost"
+              size="icon"
+              className="text-[#7059F3] hover:text-[#7059F3AA]"
+              onClick={() => handleUpdate(row.original.id, selectedJobId)}
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M5.53999 19.5196C4.92999 19.5196 4.35999 19.3096 3.94999 18.9196C3.42999 18.4296 3.17999 17.6896 3.26999 16.8896L3.63999 13.6496C3.70999 13.0396 4.07999 12.2296 4.50999 11.7896L12.72 3.09956C14.77 0.929561 16.91 0.869561 19.08 2.91956C21.25 4.96956 21.31 7.10956 19.26 9.27956L11.05 17.9696C10.63 18.4196 9.84999 18.8396 9.23999 18.9396L6.01999 19.4896C5.84999 19.4996 5.69999 19.5196 5.53999 19.5196ZM15.93 2.90956C15.16 2.90956 14.49 3.38956 13.81 4.10956L5.59999 12.8096C5.39999 13.0196 5.16999 13.5196 5.12999 13.8096L4.75999 17.0496C4.71999 17.3796 4.79999 17.6496 4.97999 17.8196C5.15999 17.9896 5.42999 18.0496 5.75999 17.9996L8.97999 17.4496C9.26999 17.3996 9.74999 17.1396 9.94999 16.9296L18.16 8.23956C19.4 6.91956 19.85 5.69956 18.04 3.99956C17.24 3.22956 16.55 2.90956 15.93 2.90956Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M17.3404 10.9508C17.3204 10.9508 17.2904 10.9508 17.2704 10.9508C14.1504 10.6408 11.6404 8.27083 11.1604 5.17083C11.1004 4.76083 11.3804 4.38083 11.7904 4.31083C12.2004 4.25083 12.5804 4.53083 12.6504 4.94083C13.0304 7.36083 14.9904 9.22083 17.4304 9.46083C17.8404 9.50083 18.1404 9.87083 18.1004 10.2808C18.0504 10.6608 17.7204 10.9508 17.3404 10.9508Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M21 22.75H3C2.59 22.75 2.25 22.41 2.25 22C2.25 21.59 2.59 21.25 3 21.25H21C21.41 21.25 21.75 21.59 21.75 22C21.75 22.41 21.41 22.75 21 22.75Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </Button> */}
             <Button
               variant="secondary"
               size="lg"
@@ -433,7 +487,6 @@ const TableFAQ = (props: Props) => {
                 />
               </svg>
             </Button>
-            {/* <FaRegFilePdf className="dark:text-white w-6 h-6 mr-2" /> */}
           </div>
         );
       },
@@ -549,38 +602,6 @@ const TableFAQ = (props: Props) => {
     );
   };
 
-  //Submit form update FAQ
-  const confirmUpdateFAQ = async (data: FormModel) => {
-    const params = {
-      job_name: data.job_name,
-      job_description: data.job_description,
-    };
-
-    await setDataForm(params);
-    console.log(params);
-    updateFAQ(
-      {},
-      {
-        onError: (error: any) => {
-          console.log("Update FAQ error:", error.response.status);
-          toast.success("Update FAQ failed");
-        },
-        onSuccess: async () => {
-          setIsOpenModalUpdate(false);
-          setInputs([]);
-          refetch();
-          reset();
-          toast.success("Update FAQ success");
-        },
-      }
-    );
-  };
-
-  const handleDeleteFAQ = (faqId: number) => {
-    setIsOpenModalDelete(true);
-    setFaqId(faqId);
-  };
-
   const closeModal = () => {
     setIsOpenModalDelete(false);
     setIsOpenModalAdd(false);
@@ -648,298 +669,50 @@ const TableFAQ = (props: Props) => {
     }
   };
 
-  // Function to close the modal
-  const closeOutputModal = () => {
-    setIsOutputModalOpen(false);
-  };
-
-  // Function to handle PDF printing
-  const handlePrintPDF = () => {
-    if (!candidateDetailQuery.data) {
-      toast.error("Resume evaluation details are not loaded yet.");
-      return;
-    }
-
-    const doc = new jsPDF(); // Create a new jsPDF instance
-
-    // Extract job details from `jobDetailQuery.data`
-    const title = `Candidate ${
-      detailCandidateName || "Candidate"
-    }'s resume evaluation data for job posting '${
-      candidateDetailQuery.data?.job_name || "Job"
-    }'`;
-    const candidateName = detailCandidateName || "Candidate";
-    const candidatemail = detailCandidateEmail || " ";
-    const candidatephone = detailCandidatePhone || " ";
-    const jobName = candidateDetailQuery.data.job_name || "Job";
-    const matchingScore = candidateDetailQuery.data.score || "0%";
-    const summary = candidateDetailQuery.data.summary_comment || "None";
-    const job_recommended = candidateDetailQuery.data.job_recommended || [];
-    const educations = candidateDetailQuery.data.degree || [];
-    const experiences = candidateDetailQuery.data.experience || [];
-    const responsibilities = candidateDetailQuery.data.responsibility || [];
-    const technicalSkills = candidateDetailQuery.data.technical_skill || [];
-    const softSkills = candidateDetailQuery.data.soft_skill || [];
-    const certificates = candidateDetailQuery.data.certificate || [];
-
-    const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
-    const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
-
-    // Set job name title in blue, centered, and with a 30px gap from the top
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
-    doc.text(title, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
-
-    // Reset font styles for the rest of the content
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-
-    const bottomPadding = 10; // Padding at the bottom of the page
-    const usablePageHeight = pageHeight - bottomPadding; // Usable height for content
-
-    // Helper function to add text with proper line wrapping and page handling
-    const addWrappedTextWithBullet = (
-      docInstance: any,
-      text: string | string[],
-      x: number,
-      y: number,
-      maxWidth: number,
-      lineHeight: number
-    ): number => {
-      const bullet = "• "; // Define the bullet point
-      const lines = Array.isArray(text)
-        ? text
-        : docInstance.splitTextToSize(text, maxWidth - 10); // Adjust maxWidth for the bullet
-      let currentY = y;
-      lines.forEach((line: string, index: number) => {
-        if (currentY + lineHeight > usablePageHeight) {
-          docInstance.addPage(); // Add a new page when text exceeds the page height
-          currentY = 20; // Reset `y` position on the new page
-        }
-        const prefix = index === 0 ? bullet : "   "; // Add bullet for the first line, and indent wrapped lines
-        docInstance.text(prefix + line, x, currentY); // Add the bullet before the text
-        currentY += lineHeight; // Increment `y` position for the next line
-      });
-      return currentY; // Return the updated `y` position
+  //Submit form update FAQ
+  const confirmUpdateFAQ = async () => {
+    setLoading(true);
+    const params = {
+      summary_comment: editedSummary,
     };
 
-    // Add sections with data
-    const addSection = (
-      title: string,
-      items: string[],
-      yOffset: number
-    ): number => {
-      if (items.length > 0) {
-        // Check if there's enough space for the section title
-        if (yOffset + 10 > usablePageHeight) {
-          // 10 is for the title's height
-          doc.addPage();
-          yOffset = 20; // Reset yOffset on the new page
-        }
-
-        // Add section title in blue
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(14); // Slightly larger font for titles
-        doc.setTextColor(0, 0, 255); // Set text color to blue
-        doc.text(title, 10, yOffset + 4); // Add section title
-        yOffset += 10; // Adjust yOffset for section content
-
-        // Add the list items in normal font and black color
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0); // Reset text color to black
-        items.forEach((item) => {
-          yOffset = addWrappedTextWithBullet(
-            doc,
-            item,
-            15,
-            yOffset,
-            pageWidth - 30,
-            6
-          ); // Add wrapped text with bullet for each item
-        });
-
-        yOffset += 4; // Add extra space after the section
+    await setUpdateForm(params);
+    console.log(params);
+    updateFAQ(
+      {
+        formData: params,
+        candidateId: CandidateId,
+        jobId: selectedJobId,
+      },
+      {
+        onError: (error: any) => {
+          setLoading(false);
+          console.log(
+            "Update FAQ error:",
+            error.response?.status || error.message
+          );
+          toast.success("Update FAQ failed");
+        },
+        onSuccess: async () => {
+          setLoading(false);
+          setIsOpenModalUpdate(false);
+          setInputs([]);
+          refetch();
+          reset();
+          toast.success("Update FAQ success");
+        },
       }
-      return yOffset;
-    };
-
-    const educationStrings = [
-      `Score: ${candidateDetailQuery.data.degree.score}`,
-      `Comment: ${candidateDetailQuery.data.degree.comment}`,
-    ];
-    const experienceStrings = [
-      `Score: ${candidateDetailQuery.data.degree.score}`,
-      `Comment: ${candidateDetailQuery.data.degree.comment}`,
-    ];
-    const responsibilitieStrings = [
-      `Score: ${candidateDetailQuery.data.degree.score}`,
-      `Comment: ${candidateDetailQuery.data.degree.comment}`,
-    ];
-    const technicalSkillStrings = [
-      `Score: ${candidateDetailQuery.data.degree.score}`,
-      `Comment: ${candidateDetailQuery.data.degree.comment}`,
-    ];
-    const softSkillStrings = [
-      `Score: ${candidateDetailQuery.data.degree.score}`,
-      `Comment: ${candidateDetailQuery.data.degree.comment}`,
-    ];
-    const certificateStrings = [
-      `Score: ${candidateDetailQuery.data.degree.score}`,
-      `Comment: ${candidateDetailQuery.data.degree.comment}`,
-    ];
-
-    let yOffset = 40; // Start content below the candidate name
-    yOffset = addSection("Candidate Name", [candidateName], yOffset);
-    yOffset = addSection("Candidate Email", [candidatemail], yOffset);
-    yOffset = addSection("Candidate Phone Number", [candidatephone], yOffset);
-    yOffset = addSection("Job Name", [jobName], yOffset);
-    yOffset = addSection("Matching Score", [matchingScore], yOffset);
-    yOffset = addSection("Summary Analyse Candidate", [summary], yOffset);
-    yOffset = addSection("Analyse Educations", educationStrings, yOffset);
-    yOffset = addSection("Experiences", experienceStrings, yOffset);
-    yOffset = addSection("Responsibilities", responsibilitieStrings, yOffset);
-    yOffset = addSection("Technical Skills", technicalSkillStrings, yOffset);
-    yOffset = addSection("Soft Skills", softSkillStrings, yOffset);
-    yOffset = addSection("Certificates", certificateStrings, yOffset);
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 255); // Blue color for the title
-    if (yOffset + 10 > usablePageHeight) {
-      // Check if there's space for the title
-      doc.addPage();
-      yOffset = 20; // Reset yOffset on the new page
-    }
-    doc.text("Candidate Created Date", 10, yOffset + 4);
-    yOffset += 10; // Adjust yOffset for the content
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0); // Black color for the content
-    // yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
-
-    // Output the PDF as a blob for printing
-    const pdfBlob = doc.output("blob"); // Get the PDF as a blob object
-
-    // Create a new window and print the PDF
-    const pdfURL = URL.createObjectURL(pdfBlob);
-    const printWindow = window.open(pdfURL, "_blank");
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.print(); // Trigger the print dialog
-      };
-    }
+    );
   };
 
-  const handleDownloadPDF = () => {
-    // if (!candidateDetailQuery.data) {
-    //   toast.error("Candidate details are not loaded yet.");
-    //   return;
-    // }
-    // const doc = new jsPDF(); // Create a new jsPDF instance
-    // // Extract job details from `jobDetailQuery.data`
-    // const candidateName = candidateDetailQuery.data.candidate_name || "Candidate";
-    // const candidatemail = candidateDetailQuery.data.email || " ";
-    // const candidatephone = candidateDetailQuery.data.phone_number || " ";
-    // const summary = candidateDetailQuery.data.comment || " ";
-    // const job_recommended = candidateDetailQuery.data.job_recommended || [];
-    // const educations = candidateDetailQuery.data.degree || [];
-    // const experiences = candidateDetailQuery.data.experience || [];
-    // const responsibilities = candidateDetailQuery.data.responsibility || [];
-    // const technicalSkills = candidateDetailQuery.data.technical_skill || [];
-    // const softSkills = candidateDetailQuery.data.soft_skill || [];
-    // const certificates = candidateDetailQuery.data.certificate || [];
-    // const cv_name = candidateDetailQuery.data.cv_name || " ";
-    // const createdAt = `Candidate Created Date: ${new Date(candidateDetailQuery.data.created_at).toLocaleDateString()}`;
-    // const pageWidth = doc.internal.pageSize.getWidth(); // Get the width of the page
-    // const pageHeight = doc.internal.pageSize.getHeight(); // Get the height of the page
-    // // Set job name title in blue, centered, and with a 30px gap from the top
-    // doc.setFont("helvetica", "bold");
-    // doc.setFontSize(20);
-    // doc.setTextColor(0, 0, 255); // Set text color to blue (RGB)
-    // doc.text(candidateName, pageWidth / 2, 30, { align: "center" }); // Center the text at 30px gap
-    // // Reset font styles for the rest of the content
-    // doc.setFontSize(12);
-    // doc.setFont("helvetica", "normal");
-    // const bottomPadding = 10; // Padding at the bottom of the page
-    // const usablePageHeight = pageHeight - bottomPadding; // Usable height for content
-    // // Helper function to add text with proper line wrapping and page handling
-    // const addWrappedTextWithBullet = (
-    //   docInstance: any,
-    //   text: string | string[],
-    //   x: number,
-    //   y: number,
-    //   maxWidth: number,
-    //   lineHeight: number
-    // ): number => {
-    //   const bullet = "• "; // Define the bullet point
-    //   const lines = Array.isArray(text) ? text : docInstance.splitTextToSize(text, maxWidth - 10); // Adjust maxWidth for the bullet
-    //   let currentY = y;
-    //   lines.forEach((line: string, index: number) => {
-    //     if (currentY + lineHeight > usablePageHeight) {
-    //       docInstance.addPage(); // Add a new page when text exceeds the page height
-    //       currentY = 20; // Reset `y` position on the new page
-    //     }
-    //     const prefix = index === 0 ? bullet : "   "; // Add bullet for the first line, and indent wrapped lines
-    //     docInstance.text(prefix + line, x, currentY); // Add the bullet before the text
-    //     currentY += lineHeight; // Increment `y` position for the next line
-    //   });
-    //   return currentY; // Return the updated `y` position
-    // };
-    // // Add sections with data
-    // const addSection = (title: string, items: string[], yOffset: number): number => {
-    //   if (items.length > 0) {
-    //     // Check if there's enough space for the section title
-    //     if (yOffset + 10 > usablePageHeight) { // 10 is for the title's height
-    //       doc.addPage();
-    //       yOffset = 20; // Reset yOffset on the new page
-    //     }
-    //     // Add section title in blue
-    //     doc.setFont("helvetica", "bold");
-    //     doc.setFontSize(14); // Slightly larger font for titles
-    //     doc.setTextColor(0, 0, 255); // Set text color to blue
-    //     doc.text(title, 10, yOffset + 4); // Add section title
-    //     yOffset += 10; // Adjust yOffset for section content
-    //     // Add the list items in normal font and black color
-    //     doc.setFont("helvetica", "normal");
-    //     doc.setFontSize(12);
-    //     doc.setTextColor(0, 0, 0); // Reset text color to black
-    //     items.forEach((item) => {
-    //       yOffset = addWrappedTextWithBullet(doc, item, 15, yOffset, pageWidth - 30, 6); // Add wrapped text with bullet for each item
-    //     });
-    //     yOffset += 4; // Add extra space after the section
-    //   }
-    //   return yOffset;
-    // };
-    // let yOffset = 40; // Start content below the candidate name
-    // yOffset = addSection("Candidate Email Address", [candidatemail], yOffset);
-    // yOffset = addSection("Candidate Phone Number", [candidatephone], yOffset);
-    // yOffset = addSection("Candidate Summary", [summary], yOffset);
-    // yOffset = addSection("Recommended Jobs", job_recommended, yOffset);
-    // yOffset = addSection("Educations", educations, yOffset);
-    // yOffset = addSection("Experiences", experiences, yOffset);
-    // yOffset = addSection("Responsibilities", responsibilities, yOffset);
-    // yOffset = addSection("Technical Skills", technicalSkills, yOffset);
-    // yOffset = addSection("Soft Skills", softSkills, yOffset);
-    // yOffset = addSection("Certificates", certificates, yOffset);
-    // yOffset = addSection("Candidate CV Name", [cv_name], yOffset);
-    // doc.setFont("helvetica", "bold");
-    // doc.setFontSize(14);
-    // doc.setTextColor(0, 0, 255); // Blue color for the title
-    // if (yOffset + 10 > usablePageHeight) { // Check if there's space for the title
-    //   doc.addPage();
-    //   yOffset = 20; // Reset yOffset on the new page
-    // }
-    // doc.text("Candidate Created Date", 10, yOffset + 4);
-    // yOffset += 10; // Adjust yOffset for the content
-    // doc.setFont("helvetica", "normal");
-    // doc.setFontSize(12);
-    // doc.setTextColor(0, 0, 0); // Black color for the content
-    // yOffset = addWrappedTextWithBullet(doc, createdAt, 15, yOffset, pageWidth - 30, 6);
-    // // Dynamically set the file name using the `jobName`
-    // const fileName = `${candidateName}.pdf`;
-    // doc.save(fileName);
+  const handleSaveSummary = () => {
+    confirmUpdateFAQ();
+    setIsEditingSummary(false); // Exit edit mode
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingSummary(false); // Exit edit mode without saving
+    setEditedSummary(""); // Reset the edited summary
   };
 
   return (
@@ -963,7 +736,7 @@ const TableFAQ = (props: Props) => {
         >
           <div>
             <Menu.Button className="inline-flex w-full justify-center gap-x-3.5 rounded-[10px] bg-white px-3 py-2 text-md font-semibold  text-[#7059F3] shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-[#202938]">
-              {selectedJobName} {/* Display the selected job name */}
+              {selectedJobName}
               <BsChevronDown className="-mr-1 h-6 w-15" aria-hidden="true" />
             </Menu.Button>
           </div>
@@ -1024,10 +797,8 @@ const TableFAQ = (props: Props) => {
       </div>
 
       <br />
-      {/* Table */}
       <UseTableTanStackSSR columns={columns} data={data.results} />
 
-      {/* Pagination */}
       <TablePagination
         component="div"
         className="hidden" // Add a utility class to hide the element
@@ -1043,7 +814,6 @@ const TableFAQ = (props: Props) => {
       />
 
       <div className="h-[88px] rounded-b-xl flex flex-row justify-between p-6">
-        {/* Preview Button */}
         <Button
           variant="outline"
           onClick={() =>
@@ -1069,7 +839,6 @@ const TableFAQ = (props: Props) => {
           Preview
         </Button>
 
-        {/* Pagination Numbers */}
         <div className="flex flex-row gap-0.5">
           {(() => {
             const totalPages = Math.ceil(
@@ -1090,7 +859,7 @@ const TableFAQ = (props: Props) => {
                   }`}
                   onClick={() => setCurrentPage(pageIndex)} // Set the current page when clicked
                 >
-                  {pageIndex + 1} {/* Display 1-based page numbers */}
+                  {pageIndex + 1}
                 </button>
               );
             };
@@ -1141,7 +910,6 @@ const TableFAQ = (props: Props) => {
           })()}
         </div>
 
-        {/* Next Button */}
         <Button
           variant="outline"
           onClick={() =>
@@ -1175,154 +943,7 @@ const TableFAQ = (props: Props) => {
           </svg>
         </Button>
       </div>
-      {/* Modal delete */}
-      <Transition appear show={isOpenModalDelete} as={React.Fragment}>
-        <Dialog as="div" className="relative z-20" onClose={closeModal}>
-          <Transition.Child
-            as={React.Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
 
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={React.Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-center text-lg font-medium leading-6 text-gray-900"
-                  >
-                    Notification
-                  </Dialog.Title>
-                  <div className="mt-4">
-                    <p className="text-sm text-gray-500">
-                      Are you sure you want to delete this job?
-                    </p>
-                  </div>
-
-                  <div className="mt-8 text-end">
-                    <button
-                      type="button"
-                      className="mr-2 inline-flex justify-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      onClick={() => confirmDeleteFAQ()}
-                    >
-                      Yes
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      onClick={closeModal}
-                    >
-                      No
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-
-      {/* Modal Add FAQ */}
-      <Transition appear show={isOpenModalAdd} as={React.Fragment}>
-        <Dialog as="div" className="relative z-20" onClose={closeModal}>
-          <Transition.Child
-            as={React.Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={React.Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-center text-lg font-medium leading-6 text-gray-900"
-                  >
-                    Create New Job
-                  </Dialog.Title>
-                  <form
-                    className="w-full"
-                    onSubmit={handleSubmit(confirmAddFAQ)}
-                  >
-                    <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5 mt-8">
-                      <div className="sm:col-span-2">
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                          Job Name
-                        </label>
-                        <input
-                          type="text"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          {...register("job_name")}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
-                      <div className="sm:col-span-2">
-                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                          Job Description
-                        </label>
-                        <input
-                          type="text"
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                          {...register("job_description")}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mt-8 text-end">
-                      <button
-                        type="submit"
-                        className="mr-2 inline-flex justify-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      >
-                        Yes
-                      </button>
-                      <button
-                        type="button"
-                        className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        onClick={closeModal}
-                      >
-                        No
-                      </button>
-                    </div>
-                  </form>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-
-      {/* Drawer */}
       <Drawer anchor="right" open={isOpenDrawer} onClose={handleDrawerClose}>
         <div className="flex items-center p-2 justify-center bg-[#7059F3] text-white">
           <button onClick={() => handleDrawerClose()}>
@@ -1331,7 +952,6 @@ const TableFAQ = (props: Props) => {
           <div className="text-base font-bold">
             Detail Analyse Matching Candidate
           </div>
-          {/* <FaRegFilePdf className="dark:text-red w-6 h-6 mr-2" /> */}
         </div>
         <div className="w-[500px] text-sm">
           {fetching ? (
@@ -1346,17 +966,6 @@ const TableFAQ = (props: Props) => {
                   {detailCandidateName ? detailCandidateName : "None"}
                 </p>
               </div>
-
-              {/* <div className="p-2">
-                <div className="text-base font-semibold leading-7 text-gray-900">
-                  Candidate Phone Number
-                </div>
-                <p className="text-sm leading-6 text-gray-60">
-                  {detailCandidatePhone
-                    ? detailCandidatePhone
-                    : "None"}
-                </p>
-              </div> */}
 
               <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
@@ -1400,26 +1009,70 @@ const TableFAQ = (props: Props) => {
               </div>
 
               <div className="p-2">
-                <div className="text-base font-semibold leading-7 text-gray-900">
-                  Summary Analyse Candidate
+                <div className="text-base font-semibold leading-7 text-gray-900 flex items-center justify-between">
+                  <span>Summary Analyse Candidate</span>
+                  <button
+                    onClick={() => {
+                      setEditedSummary(
+                        candidateDetailQuery.data?.summary_comment || ""
+                      ); // Set default value
+                      setIsEditingSummary(true); // Enter edit mode
+                    }}
+                    className="hover:opacity-80"
+                    aria-label="Edit Summary"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-5 h-5 text-gray-500 hover:text-gray-700"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16.862 3.487a2.25 2.25 0 013.182 3.182l-10.5 10.5a4.5 4.5 0 01-1.697 1.07l-4.2 1.4 1.4-4.2a4.5 4.5 0 011.07-1.697l10.5-10.5z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19.5 8.25L15.75 4.5"
+                      />
+                    </svg>
+                  </button>
                 </div>
-                <p className="text-sm leading-6 text-gray-60">
-                  {candidateDetailQuery.data?.summary_comment
-                    ? candidateDetailQuery.data?.summary_comment
-                    : "None"}
-                </p>
+                {isEditingSummary ? (
+                  <div className="mt-2">
+                    <textarea
+                      value={editedSummary}
+                      onChange={(e) => setEditedSummary(e.target.value)}
+                      className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      rows={4}
+                    />
+                    <div className="flex justify-end mt-2 space-x-2">
+                      <button
+                        onClick={handleSaveSummary}
+                        className="px-3 py-1 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="px-3 py-1 bg-gray-300 text-sm rounded-md hover:bg-gray-400"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm leading-6 text-gray-60">
+                    {candidateDetailQuery.data?.summary_comment
+                      ? candidateDetailQuery.data?.summary_comment
+                      : "None"}
+                  </p>
+                )}
               </div>
-
-              {/* <div className="p-2">
-                <div className="text-base font-semibold leading-7 text-gray-900">
-                  Recommended Jobs
-                </div>
-                <p className="text-sm leading-6 text-gray-60">
-                  {candidateDetailQuery.data?.job_recommended
-                    ? candidateDetailQuery.data?.job_recommended
-                    : "None"}
-                </p>
-              </div> */}
 
               <div className="p-2">
                 <div className="text-base font-semibold leading-7 text-gray-900">
@@ -1532,46 +1185,6 @@ const TableFAQ = (props: Props) => {
           )}
         </div>
       </Drawer>
-
-      {/* Modal Update FAQ */}
-      <Transition appear show={isOpenModalUpdate} as={React.Fragment}>
-        <Dialog as="div" className="relative z-20" onClose={closeModal}>
-          <Transition.Child
-            as={React.Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={React.Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-center text-lg font-medium leading-6 text-gray-900"
-                  >
-                    Update Job
-                  </Dialog.Title>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
 
       {/* Output Modal */}
       <Transition appear show={isOutputModalOpen} as={React.Fragment}>
@@ -1753,33 +1366,6 @@ const TableFAQ = (props: Props) => {
                       </Document>
                     </PDFViewer>
                   </div>
-
-                  {/* Modal Footer Buttons */}
-                  {/* <div className="flex justify-end gap-4 mt-6">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      onClick={handlePrintPDF}
-                    >
-                      <FaPrint />
-                      Print
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
-                      // onClick={handleDownloadPDF}
-                    >
-                      <FaDownload />
-                      Download
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex px-4 py-2 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-                      onClick={closeOutputModal}
-                    >
-                      Close
-                    </button>
-                  </div> */}
                 </Dialog.Panel>
               </Transition.Child>
             </div>

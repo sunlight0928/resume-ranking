@@ -155,7 +155,7 @@ const SidebarDashboard = ({
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium">Rocoe Chambers</span>
+                  <span className="text-sm font-medium">Roscoe Chambers</span>
                   <span className="text-sm text-gray-500">
                     roscoechambers@gmail.com
                   </span>

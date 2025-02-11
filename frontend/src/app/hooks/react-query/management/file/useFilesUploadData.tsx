@@ -7,6 +7,7 @@ import {
 import {
   getListFileAxios,
   getMatchingDetailAxios,
+  updateMatchingDetailAxios,
   uploadFileAxios,
   getListFileDetailAxios,
   deleteFileAxios,
@@ -24,14 +25,16 @@ export function useListCandidateData(
 }
 
 export function useUploadFileData(setProgress: (progress: number) => void) {
-  return useMutation(({ files, refetch }: { files: File[], refetch?:()=>void }) => {
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append("file_upload", file);
-    });
+  return useMutation(
+    ({ files, refetch }: { files: File[]; refetch?: () => void }) => {
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("file_upload", file);
+      });
 
-    return uploadFileAxios(formData, setProgress, refetch); // Pass formData and setProgress correctly
-  });
+      return uploadFileAxios(formData, setProgress, refetch); // Pass formData and setProgress correctly
+    }
+  );
 }
 
 export function useListFileDetailData(
@@ -52,6 +55,20 @@ export function useMatchingDetailData(
     ["matching-detail"],
     () => getMatchingDetailAxios(candidateId, jobId),
     { enabled: false }
+  );
+}
+
+export function updateMatchingDetailData() {
+  return useMutation(
+    ({
+      formData,
+      candidateId,
+      jobId,
+    }: {
+      formData: ModifyMatchingDetail;
+      candidateId: string;
+      jobId: string;
+    }) => updateMatchingDetailAxios(formData, candidateId, jobId)
   );
 }
 

@@ -209,6 +209,10 @@ interface ModifyFAQModel {
   job_description: string;
 }
 
+interface ModifyMatchingDetail {
+  summary_comment: string;
+}
+
 interface DataFormModel {
   id?: number;
   job_name: string;
