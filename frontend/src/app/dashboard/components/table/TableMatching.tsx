@@ -981,7 +981,7 @@ const TableFAQ = (props: Props) => {
               </div>
 
               <div className="p-2">
-                <div className="text-base font-semibold leading-7 text-gray-900 flex items-center justify-between">
+                <div className="text-base font-semibold leading-7 text-gray-900 flex items-center">
                   <span>Summary Analyse Candidate</span>
                   <button
                     onClick={() => {
@@ -990,26 +990,27 @@ const TableFAQ = (props: Props) => {
                       ); // Set default value
                       setIsEditingSummary(true); // Enter edit mode
                     }}
-                    className="hover:opacity-80"
+                    className="hover:opacity-80 pl-2"
                     aria-label="Edit Summary"
                   >
                     <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-5 h-5 text-gray-500 hover:text-gray-700"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.862 3.487a2.25 2.25 0 013.182 3.182l-10.5 10.5a4.5 4.5 0 01-1.697 1.07l-4.2 1.4 1.4-4.2a4.5 4.5 0 011.07-1.697l10.5-10.5z"
+                        d="M15 22.75H9C3.57 22.75 1.25 20.43 1.25 15V9C1.25 3.57 3.57 1.25 9 1.25H11C11.41 1.25 11.75 1.59 11.75 2C11.75 2.41 11.41 2.75 11 2.75H9C4.39 2.75 2.75 4.39 2.75 9V15C2.75 19.61 4.39 21.25 9 21.25H15C19.61 21.25 21.25 19.61 21.25 15V13C21.25 12.59 21.59 12.25 22 12.25C22.41 12.25 22.75 12.59 22.75 13V15C22.75 20.43 20.43 22.75 15 22.75Z"
+                        fill="#292D32"
                       />
                       <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19.5 8.25L15.75 4.5"
+                        d="M8.50032 17.69C7.89032 17.69 7.33032 17.47 6.92032 17.07C6.43032 16.58 6.22032 15.87 6.33032 15.12L6.76032 12.11C6.84032 11.53 7.22032 10.78 7.63032 10.37L15.5103 2.49C17.5003 0.499998 19.5203 0.499998 21.5103 2.49C22.6003 3.58 23.0903 4.69 22.9903 5.8C22.9003 6.7 22.4203 7.58 21.5103 8.48L13.6303 16.36C13.2203 16.77 12.4703 17.15 11.8903 17.23L8.88032 17.66C8.75032 17.69 8.62032 17.69 8.50032 17.69ZM16.5703 3.55L8.69032 11.43C8.50032 11.62 8.28032 12.06 8.24032 12.32L7.81032 15.33C7.77032 15.62 7.83032 15.86 7.98032 16.01C8.13032 16.16 8.37032 16.22 8.66032 16.18L11.6703 15.75C11.9303 15.71 12.3803 15.49 12.5603 15.3L20.4403 7.42C21.0903 6.77 21.4303 6.19 21.4803 5.65C21.5403 5 21.2003 4.31 20.4403 3.54C18.8403 1.94 17.7403 2.39 16.5703 3.55Z"
+                        fill="#292D32"
+                      />
+                      <path
+                        d="M19.8496 9.83003C19.7796 9.83003 19.7096 9.82003 19.6496 9.80003C17.0196 9.06003 14.9296 6.97003 14.1896 4.34003C14.0796 3.94003 14.3096 3.53003 14.7096 3.41003C15.1096 3.30003 15.5196 3.53003 15.6296 3.93003C16.2296 6.06003 17.9196 7.75003 20.0496 8.35003C20.4496 8.46003 20.6796 8.88003 20.5696 9.28003C20.4796 9.62003 20.1796 9.83003 19.8496 9.83003Z"
+                        fill="#292D32"
                       />
                     </svg>
                   </button>
@@ -1023,17 +1024,53 @@ const TableFAQ = (props: Props) => {
                       rows={4}
                     />
                     <div className="flex justify-end mt-2 space-x-2">
+                      {/* Save Button */}
                       <button
                         onClick={handleSaveSummary}
-                        className="px-3 py-1 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600"
+                        className="flex items-center px-3 py-1 bg-[#7059F3] text-white text-sm rounded-md hover:bg-[#5a45d7] space-x-1"
                       >
-                        Save
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-4 h-4"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M17.25 6.75v-1.5A2.25 2.25 0 0015 3H6.75A2.25 2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21h10.5a2.25 2.25 0 002.25-2.25V9l-4.5-4.5z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 3v4.5h4.5"
+                          />
+                        </svg>
+                        <span>Save</span>
                       </button>
+
+                      {/* Cancel Button */}
                       <button
                         onClick={handleCancelEdit}
-                        className="px-3 py-1 bg-gray-300 text-sm rounded-md hover:bg-gray-400"
+                        className="flex items-center px-3 py-1 bg-white text-[#7059F3] text-sm rounded-md border border-[#7059F3] hover:bg-[#f5f3ff] hover:border-[#5a45d7] hover:text-[#5a45d7] space-x-1"
                       >
-                        Cancel
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="w-4 h-4"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                        <span>Cancel</span>
                       </button>
                     </div>
                   </div>
