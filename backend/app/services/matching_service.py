@@ -209,7 +209,7 @@ def update_matching_data(summary_comment, candidate_id, job_id):
         # Update the summary_comment in the matching document
         update_result = mongo.db.matching.update_one(
             {"candidate_id": candidate_object_id, "job_id": job_object_id},
-            {"$set": {"summary_comment": summary_comment}}
+            {"$set": summary_comment}
         )
 
         # Check if the update was successful

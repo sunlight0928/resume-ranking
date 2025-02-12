@@ -58,17 +58,13 @@ export function useMatchingDetailData(
   );
 }
 
-export function updateMatchingDetailData() {
-  return useMutation(
-    ({
-      formData,
-      candidateId,
-      jobId,
-    }: {
-      formData: ModifyMatchingDetail;
-      candidateId: string;
-      jobId: string;
-    }) => updateMatchingDetailAxios(formData, candidateId, jobId)
+export function updateMatchingDetailData(
+  formData: ModifyMatchingDetail,
+  candidateId: string,
+  jobId: string
+): UseMutationResult<any> {
+  return useMutation(["faq-update"], () =>
+    updateMatchingDetailAxios(formData, candidateId, jobId)
   );
 }
 

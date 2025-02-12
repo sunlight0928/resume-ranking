@@ -166,13 +166,11 @@ const TableFAQ = (props: Props) => {
 
   const { mutate: deleteFAQ } = useDeleteFAQData(faqId);
   const { mutate: addFAQ } = useAddFAQData(dataForm);
-  const { mutate: updateFAQ } = updateMatchingDetailData();
-
-  updateFAQ({
-    formData: UpdateForm,
-    candidateId: CandidateId,
-    jobId: selectedJobId,
-  });
+  const { mutate: updateFAQ } = updateMatchingDetailData(
+    UpdateForm,
+    CandidateId,
+    selectedJobId
+  );
 
   const [loading, setLoading] = React.useState<boolean>(false);
   // Define a state variable to store the selected job name
