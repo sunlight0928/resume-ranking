@@ -3,7 +3,7 @@ import time
 
 import jsbeautifier
 from langchain.schema import HumanMessage, SystemMessage
-from langchain_deepseek import ChatDeepSeek
+from langchain_google_genai import ChatGoogleGenerativeAI
 from src.matching.config import matching_config
 from src.matching.prompts import fn_matching_analysis, system_prompt_matching
 from src.utils import LOGGER
@@ -26,8 +26,8 @@ def analyse_matching(matching_data):
 
     content = generate_content(job=matching_data.job, candidate=matching_data.candidate)
 
-    # Initialize the ChatDeepSeek LLM
-    llm = ChatDeepSeek(model=matching_config.MODEL_NAME, temperature=0.5)
+    # Initialize ChatGoogleGenerativeAI with the model name from the config
+    llm = ChatGoogleGenerativeAI(model=matching_config.MODEL_NAME, temperature=0.5)
     completion = llm.predict_messages(
         [
             SystemMessage(content=system_prompt_matching),
